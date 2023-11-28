@@ -1,8 +1,4 @@
 import chess
-from colorama import Fore, init
-from termcolor import colored
-
-init()
 
 def get_player_names():
     player1 = input("Enter Player 1's name: ")
@@ -11,12 +7,12 @@ def get_player_names():
 
 def offer_draw():
     draw_offer = input("Do you want to offer a draw? (yes/no): ")
-    if draw_offer.lower() == 'yes' or draw_offer.lower() == 'y':
+    if draw_offer.lower() in ["yes", "y"]:
         return True
 
 def accept_draw():
     draw_accept = input("Do you accept the draw offer? (yes/no): ")
-    if draw_accept.lower() == 'yes' or draw_accept.lower() == 'y':
+    if draw_accept.lower() in ["yes", "y"]:
         return True
 
 def valid_moves(board):
@@ -69,11 +65,9 @@ def is_draw(player1_moves,player2_moves):
     else:
         print("Draw offer rejected. Both players need to have made at least two moves.")
 
-
 # Function to print the chessboard
 def print_board(board):
-    print(colored("  a b c d e f g h", color='#000000'))
-    print(Style.RESET_ALL)
+    print("  a b c d e f g h")
     print(" +----------------")
     rows = str(board).split('\n')
     for i, row in enumerate(rows):
@@ -181,9 +175,9 @@ def play_game(player1, player2):
     save_to_file(player1_moves, player2_moves, player1, player2)  # Save moves to a file
 
     play_again = input("Do you want to play again? Reply with 'Y' for yes: ")
-    if play_again.lower() == "y" or play_again.lower() == "yes":
+    if play_again.lower() in ["yes", "y"]:
         change_names = input("Do you want to change your names? Reply with 'Y' for yes: ")
-        if change_names.lower() == "y" or change_names.lower() == "yes":
+        if change_names.lower() in ["yes", "y"]:
             player1, player2 = player_names()
         play_game(player1, player2)
 
