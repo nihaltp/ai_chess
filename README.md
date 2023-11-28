@@ -5,14 +5,14 @@ It prints the board in the interface and when we give the initial and final posi
 It can give you all possible moves, history, end the game, etc.
 
 Steps:
-	Learn about pygame
-	Initialise board
-	Initialise chess pieces
+	Learn about pygame,
+	Initialise board,
+	Initialise chess pieces,
 	Integrate the code with pygame:
-		show the board and moves
-		allow the user to make moves using mouse
-	Add random ai #just move randomly
-	add actual ai
-	add a machine learning ai
+		show the board and moves,
+		allow the user to make moves using mouse,
+	Add random ai #just move randomly,
+	add actual ai,
+	add a machine learning ai,
 
 # ai_chess
