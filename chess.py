@@ -51,7 +51,7 @@ def undo(players,player1_moves,player2_moves,board):
     else:
         print("No moves to undo.")
 
-def is_draw(player1_moves,player2_moves):
+def is_draw(player1_moves, player2_moves, players, current_player):
     if len(player1_moves) >= 2 and len(player2_moves) >= 2:
         print("Draw conditions are satisfied.")
         if offer_draw():
@@ -84,7 +84,16 @@ def save_to_file(player1_moves, player2_moves, player1, player2):
         file.write(f"Game between {player1} and {player2}:\n")
         for move1, move2 in zip(player1_moves, player2_moves):
             file.write(f"{player1}: {move1.uci()}, {player2}: {move2.uci()}\n")
-    
+
+# Function to print game result
+def print_result(player1_moves, player2_moves, player1, player2):
+    max_moves = max(len(player1_moves), len(player2_moves))
+    print("\nGame history:")
+    for i in range(max_moves):
+        move1 = player1_moves[i].uci() if i < len(player1_moves) else "N/A"
+        move2 = player2_moves[i].uci() if i < len(player2_moves) else "N/A"
+        print(f"{player1} : {move1}, {player2} : {move2}")
+
 def play_game(player1, player2):
     player1_moves = []  # Store Player 1's moves separately
     player2_moves = []  # Store Player 2's moves separately
@@ -102,83 +111,82 @@ def play_game(player1, player2):
             history(max_moves,player1_moves,player2_moves)
             continue
 
-        if move.lower() in ["hint", "hints", "h"]:
+        elif move.lower() in ["hint", "hints", "h"]:
             valid_moves(board)
             continue
 
-        if move.lower() in ["undo", "u"]:
+        elif move.lower() in ["undo", "u"]:
             undo(players,player1_moves,player2_moves,board)
             continue  # Allow the player to input a new move
 
-        if move.lower() in ["draw", "d"]:
-            if is_draw(player1_moves,player2_moves):
+        elif move.lower() in ["draw", "d"]:
+            if is_draw(player1_moves, player2_moves, players, current_player):
                 break
             continue
 
-        try:
-            move = chess.Move.from_uci(move.lower())
-            if move in board.legal_moves:
-                if board.is_castling(move):  # Check for castling
-                    board.push(move)  # Perform castling
-                    if move.from_square == chess.E1 and move.to_square == chess.G1:  # Kingside castling for white
-                        board.push(chess.Move.from_uci("e1g1"))  # Move the King
-                        board.push(chess.Move.from_uci("h1f1"))  # Move the Rook
+        else:
+            try:
+                print(f"\033[92mMove confirmed: {move.uci()}.\033[0m")  # Added move confirmation prompt
+                move = chess.Move.from_uci(move.lower())
+                if move in board.legal_moves:
+                    if board.is_castling(move):  # Check for castling
+                        board.push(move)  # Perform castling
+                        if move.from_square == chess.E1 and move.to_square == chess.G1:  # Kingside castling for white
+                            board.push(chess.Move.from_uci("e1g1"))  # Move the King
+                            board.push(chess.Move.from_uci("h1f1"))  # Move the Rook
 
-                    elif move.from_square == chess.E1 and move.to_square == chess.C1:  # Queenside castling for white
-                        board.push(chess.Move.from_uci("e1c1"))  # Move the King
-                        board.push(chess.Move.from_uci("a1d1"))  # Move the Rook
+                        elif move.from_square == chess.E1 and move.to_square == chess.C1:  # Queenside castling for white
+                            board.push(chess.Move.from_uci("e1c1"))  # Move the King
+                            board.push(chess.Move.from_uci("a1d1"))  # Move the Rook
 
-                    elif move.from_square == chess.E8 and move.to_square == chess.G8:  # Kingside castling for black
-                        board.push(chess.Move.from_uci("e8g8"))  # Move the King
-                        board.push(chess.Move.from_uci("h8f8"))  # Move the Rook
+                        elif move.from_square == chess.E8 and move.to_square == chess.G8:  # Kingside castling for black
+                            board.push(chess.Move.from_uci("e8g8"))  # Move the King
+                            board.push(chess.Move.from_uci("h8f8"))  # Move the Rook
 
-                    elif move.from_square == chess.E8 and move.to_square == chess.C8:  # Queenside castling for black
-                        board.push(chess.Move.from_uci("e8c8"))  # Move the King
-                        board.push(chess.Move.from_uci("a8d8"))  # Move the Rook
+                        elif move.from_square == chess.E8 and move.to_square == chess.C8:  # Queenside castling for black
+                            board.push(chess.Move.from_uci("e8c8"))  # Move the King
+                            board.push(chess.Move.from_uci("a8d8"))  # Move the Rook
 
+                    else:
+                        board.push(move)  # For normal moves
+
+                    if current_player == 0:
+                        player1_moves.append(move)  # Store Player 1's move
+                    else:
+                        player2_moves.append(move)  # Store Player 2's move
+
+                    current_player = 1 - current_player  # Switch players
+
+                    if board.is_checkmate():
+                        print(f"Checkmate! {players[current_player]} wins.")
+                        break
+                    elif board.is_stalemate():
+                        print("Stalemate! The game is a draw.")
+                        break
+                    elif board.is_insufficient_material():
+                        print("Insufficient material! The game is a draw.")
+                        break
+                    elif board.is_check():
+                        print(f"\033[91mCheck! {players[current_player]} is in check!\033[0m")
                 else:
-                    board.push(move)  # For normal moves
+                    print("Invalid move! Try again.")
+            except ValueError:
+                print("Invalid move format! Use UCI format (e.g., e2e4).")
 
-                if current_player == 0:
-                    player1_moves.append(move)  # Store Player 1's move
-                else:
-                    player2_moves.append(move)  # Store Player 2's move
 
-                current_player = 1 - current_player  # Switch players
+    print("\033[93mGame over.\033[0m")
+    print("\033[95mResult: " + board.result() + "\033[0m")  # Enhanced game over message
 
-                if board.is_checkmate():
-                    print(f"Checkmate! {players[current_player]} wins.")
-                    break
-                elif board.is_stalemate():
-                    print("Stalemate! The game is a draw.")
-                    break
-                elif board.is_insufficient_material():
-                    print("Insufficient material! The game is a draw.")
-                    break
-                elif board.is_check():
-                    print("Check!")
-            else:
-                print("Invalid move! Try again.")
-        except ValueError:
-            print("Invalid move format! Use UCI format (e.g., e2e4).")
+    print_result(player1_moves, player2_moves, player1, player2)
 
-    print("Game over.")
-    print("Result: " + board.result())
-
-    print("\nGame history:")
-    for i in range(max_moves):
-        max_moves = max(len(player1_moves), len(player2_moves))
-        move1 = player1_moves[i].uci() if i < len(player1_moves) else "N/A"
-        move2 = player2_moves[i].uci() if i < len(player2_moves) else "N/A"
-        print(f"{player1} : {move1}, {player2} : {move2}")
-
-    save_to_file(player1_moves, player2_moves, player1, player2)  # Save moves to a file
+    # Save moves to a file
+    save_to_file(player1_moves, player2_moves, player1, player2)
 
     play_again = input("Do you want to play again? Reply with 'Y' for yes: ")
     if play_again.lower() in ["yes", "y"]:
         change_names = input("Do you want to change your names? Reply with 'Y' for yes: ")
         if change_names.lower() in ["yes", "y"]:
-            player1, player2 = player_names()
+            player1, player2 = get_player_names()
         play_game(player1, player2)
 
 print("""Available features:
