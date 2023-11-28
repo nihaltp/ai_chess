@@ -20,7 +20,8 @@ def valid_moves(board):
     for move in board.legal_moves:
         print(move.uci())
 
-def history(max_moves,player1_moves,player2_moves):
+def history(player1_moves,player2_moves):
+    max_moves = max(len(player1_moves), len(player2_moves))
     for i in range(max_moves):
         move1 = player1_moves[i].uci() if i < len(player1_moves) else "N/A"
         move2 = player2_moves[i].uci() if i < len(player2_moves) else "N/A"
@@ -102,13 +103,12 @@ def play_game(player1, player2):
     board = chess.Board()
 
     while not board.is_game_over():
-        max_moves = max(len(player1_moves), len(player2_moves))  # Calculate max_moves here
         print_board(board)
         print(f"{players[current_player]}'s turn.")
         move = input("Enter your move (e.g., e2e4): ")
 
         if move.lower() in ["history", "hist", "moves", "move", "m"]:
-            history(max_moves,player1_moves,player2_moves)
+            history(player1_moves,player2_moves)
             continue
 
         elif move.lower() in ["hint", "hints", "h"]:
@@ -126,8 +126,8 @@ def play_game(player1, player2):
 
         else:
             try:
-                print(f"\033[92mMove confirmed: {move.uci()}.\033[0m")  # Added move confirmation prompt
                 move = chess.Move.from_uci(move.lower())
+                print(f"\033[92mMove confirmed: {move.uci()}.\033[0m")  # Added move confirmation prompt
                 if move in board.legal_moves:
                     if board.is_castling(move):  # Check for castling
                         board.push(move)  # Perform castling
