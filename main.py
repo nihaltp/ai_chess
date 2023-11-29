@@ -1,5 +1,6 @@
 import chess
 
+
 def get_player_names():
     player1 = input("Enter Player 1's name: ")
     player2 = input("Enter Player 2's name: ")
