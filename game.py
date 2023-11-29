@@ -13,6 +13,7 @@ square_size = square_width // columns
 # Colors
 white = (255, 255, 255)
 black = (0, 0, 0)
+text_color = white
 
 # Create the Pygame window
 screen = pygame.display.set_mode((width, height))
@@ -31,7 +32,11 @@ chessboard_columns = ["a","b","c","d","e","f","g","h"]
 # Assign unique values to each square
 for row in range(rows):
     for column in range(columns):
-        chessboard[row][column] = chessboard_rows[row], chessboard_columns[column]
+        chessboard[row][column] = chessboard_columns[column], chessboard_rows[row]
+
+# Pygame font setup
+pygame.font.init()
+font = pygame.font.SysFont(None, 30)
 
 # Draw chessboard
 def draw_chessboard(rows, columns):
@@ -41,6 +46,24 @@ def draw_chessboard(rows, columns):
             color = white if (row + column) % 2 == 0 else black
             square_rect = pygame.Rect(chess_x + column * square_size, chess_y + row * square_size, square_size, square_size)
             pygame.draw.rect(screen, color, square_rect)
+
+# Draw chessboard rows
+def draw_rows():
+    for i, row_value in enumerate(chessboard_rows):
+        text = font.render(str(row_value), True, text_color)
+        text_rect = text.get_rect(center=(chess_x - 30, chess_y + i * square_size + square_size // 2))
+        screen.blit(text, text_rect)
+        text_rect = text.get_rect(center=(chess_x + 430, chess_y + i * square_size + square_size // 2))
+        screen.blit(text, text_rect)
+
+# Draw chessboard columns
+def draw_columns():
+    for i, col_value in enumerate(chessboard_columns):
+        text = font.render(col_value, True, text_color)
+        text_rect = text.get_rect(center=(chess_x + i * square_size + square_size // 2, chess_y - 30))
+        screen.blit(text, text_rect)
+        text_rect = text.get_rect(center=(chess_x + i * square_size + square_size // 2, chess_y + 430))
+        screen.blit(text, text_rect)
 
 #handle events
 def handle_events():
@@ -69,6 +92,8 @@ def handle_mouse_click():
 
 while True:
     draw_chessboard(rows, columns)
+    draw_rows()
+    draw_columns()
     handle_events()
 
     # Update the display
