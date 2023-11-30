@@ -8,10 +8,10 @@ pygame.init()
 # Constants
 width = 700
 height = 500
-square_width = 400
-rows = 8
-columns = 8
-square_size = square_width // columns
+SQUARE_WIDTH = 400
+ROWS = 8
+COLUMNS = 8
+SQUARE_SIZE = SQUARE_WIDTH // COLUMNS
 
 # Where to start the chess board
 chess_x = 150
@@ -35,7 +35,7 @@ queen_b = pygame.image.load("pieces/queen_b.png")
 king_w = pygame.image.load("pieces/king_w.png")
 king_b = pygame.image.load("pieces/king_b.png")
 
-piece_image = {
+PIECE_IMAGE = {
     "pawn_w": pawn_w,
     "rook_w": rook_w,
     "knight_w": knight_w,
@@ -62,12 +62,11 @@ chessboard = {
     'a8': 'rook_b', 'b8': 'knight_b', 'c8': 'bishop_b', 'd8': 'queen_b', 'e8': 'king_b', 'f8': 'bishop_b', 'g8': 'knight_b', 'h8': 'rook_b',
 }
 
-
 FILE_NAMES = ["a", "b", "c", "d", "e", "f", "g", "h"]
 RANK_NAMES = ["1", "2", "3", "4", "5", "6", "7", "8"]
 
 # Draw the chessboard# Create a 2D list to represent the chessboard with values
-squares = [
+SQUARES = [
     "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
     "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
     "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
@@ -79,12 +78,13 @@ squares = [
 ]
 
 # Colors
-white = (255, 255, 255)
-black = (192, 192, 192)
-gold = (255, 215, 0)
-text_color = white
-background = (135, 206, 250)
-board_border = (0, 0, 0)
+WHITE = (255, 255, 255)
+BLACK = (192, 192, 192)
+GOLD = (255, 215, 0)
+
+TEXT_COLOR = WHITE
+BACKGROUND = (135, 206, 250)
+BOARD_BORDER = (0, 0, 0)
 
 # Create the Pygame window
 screen = pygame.display.set_mode((width, height))
@@ -95,59 +95,63 @@ pygame.font.init()
 font = pygame.font.SysFont(None, 30)
 
 # Draw chessboard
-def draw_chessboard(rows, columns):
+def draw_chessboard(ROWS, COLUMNS):
     global highlight, mouse_x, mouse_y
 
-    screen.fill(background)
-    square_rect = pygame.Rect(chess_x - 2, chess_y - 2, square_width + 4, square_width + 4)
-    pygame.draw.rect(screen, board_border, square_rect, width = 2 )
+    screen.fill(BACKGROUND)
+    square_rect = pygame.Rect(chess_x - 2, chess_y - 2, SQUARE_WIDTH + 4, SQUARE_WIDTH + 4)
+    pygame.draw.rect(screen, BOARD_BORDER, square_rect, width = 2 )
 
     # Draw each square independently
-    for row in range(rows):
-        for column in range(columns):
-            color = white if (row + column) % 2 == 0 else black
-            square_rect = pygame.Rect(chess_x + column * square_size, chess_y + row * square_size, square_size, square_size)
+    for row in range(ROWS):
+        for column in range(COLUMNS):
+            color = WHITE if (row + column) % 2 == 0 else BLACK
+            square_rect = pygame.Rect(chess_x + column * SQUARE_SIZE, chess_y + row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE)
             pygame.draw.rect(screen, color, square_rect)
 
             # Check chessboard configuration and blit the corresponding image
             value = row * 8 + column
-            piece_key = squares[value]
+            piece_key = SQUARES[value]
             piece = chessboard[piece_key]
             draw_piece(piece, square_rect)
 
     draw_rows()
-    draw_columns()
+    draw_cloumns()
 
     if highlight:
         highlight_square(mouse_x, mouse_y)
 
 # Function to draw pieces on the board
 def draw_piece(piece, square_rect):
-    global piece_image
+    global PIECE_IMAGE
 
     # Get the piece image from the dictionary
-    piece_img = piece_image.get(piece)
+    piece_img = PIECE_IMAGE.get(piece)
 
     if piece_img is not None:
         # Blit the piece image
         screen.blit(piece_img, square_rect.topleft)
 
-# Draw chessboard rows
+# Draw chessboard ROWS
 def draw_rows():
     for i, row_value in enumerate(RANK_NAMES):
-        text = font.render(str(row_value), True, text_color)
-        text_rect = text.get_rect(center=(chess_x - 30, chess_y + i * square_size + square_size // 2))
+        text = font.render(str(row_value), True, TEXT_COLOR)
+        # Left
+        text_rect = text.get_rect(center=(chess_x - 30, chess_y + i * SQUARE_SIZE + SQUARE_SIZE // 2))
         screen.blit(text, text_rect)
-        text_rect = text.get_rect(center=(chess_x + 430, chess_y + i * square_size + square_size // 2))
+        # Right
+        text_rect = text.get_rect(center=(chess_x + 430, chess_y + i * SQUARE_SIZE + SQUARE_SIZE // 2))
         screen.blit(text, text_rect)
 
-# Draw chessboard columns
-def draw_columns():
+# Draw chessboard COLUMNS
+def draw_cloumns():
     for i, col_value in enumerate(FILE_NAMES):
-        text = font.render(col_value, True, text_color)
-        text_rect = text.get_rect(center=(chess_x + i * square_size + square_size // 2, chess_y - 30))
+        # Top
+        text = font.render(col_value, True, TEXT_COLOR)
+        text_rect = text.get_rect(center=(chess_x + i * SQUARE_SIZE + SQUARE_SIZE // 2, chess_y - 30))
         screen.blit(text, text_rect)
-        text_rect = text.get_rect(center=(chess_x + i * square_size + square_size // 2, chess_y + 430))
+        # Bottom
+        text_rect = text.get_rect(center=(chess_x + i * SQUARE_SIZE + SQUARE_SIZE // 2, chess_y + 430))
         screen.blit(text, text_rect)
 
 #handle events
@@ -163,22 +167,22 @@ def handle_events():
 def handle_mouse_click():
     global highlight, mouse_x, mouse_y
 
-    square_rect = pygame.Rect(chess_x - 2, chess_y - 2, square_width + 4, square_width + 4)
-    pygame.draw.rect(screen, white, square_rect, width = 2 )
+    square_rect = pygame.Rect(chess_x - 2, chess_y - 2, SQUARE_WIDTH + 4, SQUARE_WIDTH + 4)
+    pygame.draw.rect(screen, WHITE, square_rect, width = 2 )
 
     # Get the mouse coordinates
     mouse_x, mouse_y = pygame.mouse.get_pos()
 
     # Determine the clicked square
-    clicked_column = (mouse_x - chess_x) // square_size
-    clicked_row = (mouse_y - chess_y) // square_size
+    clicked_column = (mouse_x - chess_x) // SQUARE_SIZE
+    clicked_row = (mouse_y - chess_y) // SQUARE_SIZE
 
     # Check if the click is within the chessboard boundaries
-    if 0 <= clicked_row < rows and 0 <= clicked_column < columns:
+    if 0 <= clicked_row < ROWS and 0 <= clicked_column < COLUMNS:
         value = clicked_row*8 + clicked_column
-        clicked_square_value = squares[value]
+        clicked_square_value = SQUARES[value]
         print(f"Mouse clicked at Square : {clicked_square_value}")
-        #Change the border to white when clicked
+        #Change the border to WHITE when clicked
         highlight = True
 
     else:
@@ -187,17 +191,17 @@ def handle_mouse_click():
 
 def highlight_square(mouse_x, mouse_y):
     # Determine the clicked square
-    clicked_column = (mouse_x - chess_x) // square_size
-    clicked_row = (mouse_y - chess_y) // square_size
+    clicked_column = (mouse_x - chess_x) // SQUARE_SIZE
+    clicked_row = (mouse_y - chess_y) // SQUARE_SIZE
 
-    x = chess_x + (clicked_column * square_size)
-    y = chess_y + (clicked_row * square_size)
+    x = chess_x + (clicked_column * SQUARE_SIZE)
+    y = chess_y + (clicked_row * SQUARE_SIZE)
 
-    square_rect = pygame.Rect(x, y, square_size, square_size)
-    pygame.draw.rect(screen, gold, square_rect, width = 2 )
+    square_rect = pygame.Rect(x, y, SQUARE_SIZE, SQUARE_SIZE)
+    pygame.draw.rect(screen, GOLD, square_rect, width = 2 )
 
 def game():
-    draw_chessboard(rows, columns)
+    draw_chessboard(ROWS, COLUMNS)
     handle_events()
 
     # Update the display
@@ -205,4 +209,3 @@ def game():
 
 while __name__ == "__main__":
     game()
-
