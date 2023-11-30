@@ -101,7 +101,6 @@ def play_game(player1, player2):
     current_player = 0
     players = [player1, player2]
     board = chess.Board()
-    print(board)
 
     while not board.is_game_over():
         print_board(board)
