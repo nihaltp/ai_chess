@@ -1,6 +1,5 @@
 import chess
 
-
 def get_player_names():
     player1 = input("Enter Player 1's name: ")
     player2 = input("Enter Player 2's name: ")
@@ -102,6 +101,7 @@ def play_game(player1, player2):
     current_player = 0
     players = [player1, player2]
     board = chess.Board()
+    print(board)
 
     while not board.is_game_over():
         print_board(board)
@@ -124,6 +124,9 @@ def play_game(player1, player2):
             if is_draw(player1_moves, player2_moves, players, current_player):
                 break
             continue
+
+        elif move.lower() in ["exit", "stop"]:
+            break
 
         else:
             try:
