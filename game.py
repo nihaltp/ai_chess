@@ -35,7 +35,7 @@ def draw_chessboard(ROWS, COLUMNS):
             draw_piece(piece, square_rect)
 
     draw_rows()
-    draw_cloumns()
+    draw_columns()
 
     if highlight:
         highlight_square(mouse_x, mouse_y)
@@ -63,7 +63,7 @@ def draw_rows():
         screen.blit(text, text_rect)
 
 # Draw chessboard COLUMNS
-def draw_cloumns():
+def draw_columns():
     for i, col_value in enumerate(FILE_NAMES):
         # Top
         text = font.render(col_value, True, TEXT_COLOR)
