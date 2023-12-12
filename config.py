@@ -1,3 +1,5 @@
+import pygame
+
 # Constants
 width = 700
 height = 500
