@@ -1,5 +1,4 @@
 import sys
-import chess
 import pygame
 
 # Initialize Pygame
