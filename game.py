@@ -24,7 +24,7 @@ def draw_chessboard(ROWS, COLUMNS):
     # Draw each square independently
     for row in range(ROWS):
         for column in range(COLUMNS):
-            color = WHITE if (row + column) % 2 == 0 else BLACK
+            color = WHITE if (row + column) % 2 == 0 else GREY
             square_rect = pygame.Rect(chess_x + column * SQUARE_SIZE, chess_y + row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE)
             pygame.draw.rect(screen, color, square_rect)
 
