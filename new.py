@@ -304,6 +304,9 @@ def play_game(player1, player2):
             player1, player2 = get_player_names()
         play_game(player1, player2)
 
+player1, player2 = get_player_names()
+board = chess.Board()
+
 # Initialize Pygame
 pygame.init()
 
@@ -321,8 +324,9 @@ print("""Available features:
     History
     """)
 
-player1, player2 = get_player_names()
-board = chess.Board()
-
 while True:
-    pass
+    draw_chessboard(ROWS, COLUMNS)
+    handle_events()
+
+    # Update the display
+    pygame.display.flip()
