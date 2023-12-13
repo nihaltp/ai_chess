@@ -1,6 +1,6 @@
 import chess
 import pygame
-from config import *
+from settings import *
 
 def get_player_names():
     player1 = input("Enter Player 1's name: ")
@@ -215,7 +215,6 @@ def play_game(player1, player2):
     board = chess.Board()
 
     while not board.is_game_over():
-        game()
         print_board(board)
         print(f"{players[current_player]}'s turn.")
         move = input("Enter your move (e.g., e2e4): ")
@@ -305,12 +304,6 @@ def play_game(player1, player2):
             player1, player2 = get_player_names()
         play_game(player1, player2)
 
-print("""Available features:
-    Undo
-    Draw
-    History
-    """)
-
 # Initialize Pygame
 pygame.init()
 
@@ -322,7 +315,14 @@ pygame.display.set_caption("AI Chess")
 pygame.font.init()
 font = pygame.font.SysFont(None, 30)
 
-while __name__ == "__main__":
-    player1, player2 = get_player_names()
-    board = chess.Board()
-    play_game(player1, player2)
+print("""Available features:
+    Undo
+    Draw
+    History
+    """)
+
+player1, player2 = get_player_names()
+board = chess.Board()
+
+while True:
+    pass
