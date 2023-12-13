@@ -181,7 +181,11 @@ def handle_mouse_click():
     if 0 <= clicked_row < ROWS and 0 <= clicked_column < COLUMNS:
         value = clicked_row*8 + clicked_column
         clicked_square_value = SQUARES[value]
+        clicked_piece = chessboard[clicked_square_value]
         print(f"Mouse clicked at Square : {clicked_square_value}")
+        if clicked_piece != "NA":
+            print(f"Mouse clicked on : {clicked_piece}")
+
         #Change the border to WHITE when clicked
         highlight = True
 
