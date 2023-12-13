@@ -105,31 +105,31 @@ def play_game(player1, player2):
     while not board.is_game_over():
         print_board(board)
         print(f"{players[current_player]}'s turn.")
-        move = input("Enter your move (e.g., e2e4): ")
+        move = (input("Enter your move (e.g., e2e4): ")).lower()
 
-        if move.lower() in ["history", "hist", "moves", "move", "m"]:
+        if move in ["history", "hist", "moves", "move", "m"]:
             history(player1_moves,player2_moves)
             continue
 
-        elif move.lower() in ["hint", "hints", "h"]:
+        elif move in ["hint", "hints", "h"]:
             valid_moves(board)
             continue
 
-        elif move.lower() in ["undo", "u"]:
+        elif move in ["undo", "u"]:
             undo(players,player1_moves,player2_moves,board)
             continue  # Allow the player to input a new move
 
-        elif move.lower() in ["draw", "d"]:
+        elif move in ["draw", "d"]:
             if is_draw(player1_moves, player2_moves, players, current_player):
                 break
             continue
 
-        elif move.lower() in ["exit", "stop"]:
+        elif move in ["exit", "stop"]:
             break
 
         else:
             try:
-                move = chess.Move.from_uci(move.lower())
+                move = chess.Move.from_uci(move)
                 print(f"\033[92mMove confirmed: {move.uci()}.\033[0m")  # Added move confirmation prompt
                 if move in board.legal_moves:
                     if board.is_castling(move):  # Check for castling
