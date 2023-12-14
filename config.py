@@ -30,16 +30,16 @@ highlight = False
 
 #import images
 pawn_w = pygame.image.load("pieces/pawn_w.png")
-pawn_b = pygame.image.load("pieces/pawn_b.png")
 knight_w = pygame.image.load("pieces/knight_w.png")
-knight_b = pygame.image.load("pieces/knight_b.png")
 bishop_w = pygame.image.load("pieces/bishop_w.png")
-bishop_b = pygame.image.load("pieces/bishop_b.png")
 rook_w = pygame.image.load("pieces/rook_w.png")
-rook_b = pygame.image.load("pieces/rook_b.png")
 queen_w = pygame.image.load("pieces/queen_w.png")
-queen_b = pygame.image.load("pieces/queen_b.png")
 king_w = pygame.image.load("pieces/king_w.png")
+pawn_b = pygame.image.load("pieces/pawn_b.png")
+knight_b = pygame.image.load("pieces/knight_b.png")
+bishop_b = pygame.image.load("pieces/bishop_b.png")
+rook_b = pygame.image.load("pieces/rook_b.png")
+queen_b = pygame.image.load("pieces/queen_b.png")
 king_b = pygame.image.load("pieces/king_b.png")
 
 PIECE_IMAGE = {
@@ -55,6 +55,22 @@ PIECE_IMAGE = {
     "bishop_b": bishop_b,
     "queen_b": queen_b,
     "king_b": king_b,
+}
+
+PIECE_VALUE = {
+    ".": "NA"
+    "P": "pawn_w"
+    "R": "rook_w"
+    "N": "knight_w"
+    "B": "bishop_w"
+    "Q": "queen_w"
+    "K": "king_w"
+    "p": "pawn_b"
+    "r": "rook_b"
+    "n": "knight_b"
+    "b": "bishop_b"
+    "q": "queen_b"
+    "k": "king_b"
 }
 
 FILE_NAMES = ["a", "b", "c", "d", "e", "f", "g", "h"]
