@@ -58,19 +58,19 @@ PIECE_IMAGE = {
 }
 
 PIECE_VALUE = {
-    ".": "NA"
-    "P": "pawn_w"
-    "R": "rook_w"
-    "N": "knight_w"
-    "B": "bishop_w"
-    "Q": "queen_w"
-    "K": "king_w"
-    "p": "pawn_b"
-    "r": "rook_b"
-    "n": "knight_b"
-    "b": "bishop_b"
-    "q": "queen_b"
-    "k": "king_b"
+    ".": "NA",
+    "P": "pawn_w",
+    "R": "rook_w",
+    "N": "knight_w",
+    "B": "bishop_w",
+    "Q": "queen_w",
+    "K": "king_w",
+    "p": "pawn_b",
+    "r": "rook_b",
+    "n": "knight_b",
+    "b": "bishop_b",
+    "q": "queen_b",
+    "k": "king_b",
 }
 
 FILE_NAMES = ["a", "b", "c", "d", "e", "f", "g", "h"]
