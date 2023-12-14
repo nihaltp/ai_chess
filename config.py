@@ -74,7 +74,7 @@ PIECE_VALUE = {
 }
 
 FILE_NAMES = ["a", "b", "c", "d", "e", "f", "g", "h"]
-RANK_NAMES = ["1", "2", "3", "4", "5", "6", "7", "8"]
+RANK_NAMES = ["8", "7", "6", "5", "4", "3", "2", "1"]
 
 # Create a 2D list to represent the chessboard with values
 SQUARES = [
