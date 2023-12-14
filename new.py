@@ -1,101 +1,7 @@
+import sys
 import chess
 import pygame
-from settings import *
-
-def get_player_names():
-    player1 = input("Enter Player 1's name: ")
-    player2 = input("Enter Player 2's name: ")
-    return player1, player2
-
-def offer_draw():
-    draw_offer = input("Do you want to offer a draw? (yes/no): ")
-    if draw_offer.lower() in ["yes", "y"]:
-        return True
-
-def accept_draw():
-    draw_accept = input("Do you accept the draw offer? (yes/no): ")
-    if draw_accept.lower() in ["yes", "y"]:
-        return True
-
-def valid_moves(board):
-    print("Valid Moves:")
-    for move in board.legal_moves:
-        print(move.uci())
-
-def history(player1_moves,player2_moves):
-    max_moves = max(len(player1_moves), len(player2_moves))
-    for i in range(max_moves):
-        move1 = player1_moves[i].uci() if i < len(player1_moves) else "N/A"
-        move2 = player2_moves[i].uci() if i < len(player2_moves) else "N/A"
-        print(f"{player1} : {move1}, {player2} : {move2}")
-
-def undo(players,player1_moves,player2_moves,board):
-    if len(player1_moves) >= 1 or len(player2_moves) >= 1:
-        last_move_player1 = None
-        last_move_player2 = None
-
-        if len(player1_moves) >= 1:
-            last_move_player1 = player1_moves.pop()  # Remove Player 1's last move
-            board.pop()  # Undo last move on the board
-        else:
-            last_move_player1 = None
-                
-        if len(player2_moves) >= 1:
-            last_move_player2 = player2_moves.pop()  # Remove Player 2's last move
-            board.pop()  # Undo last move on the board
-        else:
-            last_move_player2 = None
-                    
-        if last_move_player1 is not None:
-            print(f"{players[0]} undid their last move: {last_move_player1.uci()}")
-        if last_move_player2 is not None:
-            print(f"{players[1]} undid their last move: {last_move_player2.uci()}")
-
-    else:
-        print("No moves to undo.")
-
-def is_draw(player1_moves, player2_moves, players, current_player):
-    if len(player1_moves) >= 2 and len(player2_moves) >= 2:
-        print("Draw conditions are satisfied.")
-        if offer_draw():
-            if accept_draw():
-                print("The game is a draw by agreement.")
-                return True
-            else:
-                print(f"{players[current_player]} declined the draw offer.")
-        else:
-            print(f"{players[current_player]} declined the draw offer.")
-    else:
-        print("Draw offer rejected. Both players need to have made at least two moves.")
-
-# Function to print the chessboard
-def print_board(board):
-    print("  a b c d e f g h")
-    print(" +----------------")
-    rows = str(board).split('\n')
-    for i, row in enumerate(rows):
-        print(f"{8 - i}| {row}")
-
-# Function to save moves to a text file
-def save_to_file(player1_moves, player2_moves, player1, player2):
-    p1s = str(player1)
-    p2s = str(player2)
-    p1r = p1s.replace(" ", "_")
-    p2r = p2s.replace(" ", "_")
-    file = (p1r+"_"+p2r+".txt")
-    with open(file, 'a') as file:
-        file.write(f"Game between {player1} and {player2}:\n")
-        for move1, move2 in zip(player1_moves, player2_moves):
-            file.write(f"{player1}: {move1.uci()}, {player2}: {move2.uci()}\n")
-
-# Function to print game result
-def print_result(player1_moves, player2_moves, player1, player2):
-    max_moves = max(len(player1_moves), len(player2_moves))
-    print("\nGame history:")
-    for i in range(max_moves):
-        move1 = player1_moves[i].uci() if i < len(player1_moves) else "N/A"
-        move2 = player2_moves[i].uci() if i < len(player2_moves) else "N/A"
-        print(f"{player1} : {move1}, {player2} : {move2}")
+from config import *
 
 # Draw chessboard
 def draw_chessboard(ROWS, COLUMNS):
@@ -119,7 +25,7 @@ def draw_chessboard(ROWS, COLUMNS):
             draw_piece(piece, square_rect)
 
     draw_rows()
-    draw_cloumns()
+    draw_columns()
 
     if highlight:
         highlight_square(mouse_x, mouse_y)
@@ -147,7 +53,7 @@ def draw_rows():
         screen.blit(text, text_rect)
 
 # Draw chessboard COLUMNS
-def draw_cloumns():
+def draw_columns():
     for i, col_value in enumerate(FILE_NAMES):
         # Top
         text = font.render(col_value, True, TEXT_COLOR)
@@ -160,7 +66,10 @@ def draw_cloumns():
 #handle events
 def handle_events():
     for event in pygame.event.get():
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
             handle_mouse_click()
 
 #handle mouse clicks
@@ -211,6 +120,11 @@ def game():
     # Update the display
     pygame.display.flip()
 
+def get_player_names():
+    player1 = input("Enter Player 1's name: ")
+    player2 = input("Enter Player 2's name: ")
+    return player1, player2
+
 def play_game(player1, player2):
     player1_moves = []  # Store Player 1's moves separately
     player2_moves = []  # Store Player 2's moves separately
@@ -219,33 +133,17 @@ def play_game(player1, player2):
     board = chess.Board()
 
     while not board.is_game_over():
-        print_board(board)
+        print(board)
         print(f"{players[current_player]}'s turn.")
-        move = input("Enter your move (e.g., e2e4): ")
+        move = (input("Enter your move (e.g., e2e4): ")).lower()
 
-        if move.lower() in ["history", "hist", "moves", "move", "m"]:
-            history(player1_moves,player2_moves)
-            continue
 
-        elif move.lower() in ["hint", "hints", "h"]:
-            valid_moves(board)
-            continue
-
-        elif move.lower() in ["undo", "u"]:
-            undo(players,player1_moves,player2_moves,board)
-            continue  # Allow the player to input a new move
-
-        elif move.lower() in ["draw", "d"]:
-            if is_draw(player1_moves, player2_moves, players, current_player):
-                break
-            continue
-
-        elif move.lower() in ["exit", "stop"]:
+        if move in ["exit", "stop"]:
             break
 
         else:
             try:
-                move = chess.Move.from_uci(move.lower())
+                move = chess.Move.from_uci(move)
                 print(f"\033[92mMove confirmed: {move.uci()}.\033[0m")  # Added move confirmation prompt
                 if move in board.legal_moves:
                     if board.is_castling(move):  # Check for castling
@@ -296,11 +194,6 @@ def play_game(player1, player2):
     print("\033[93mGame over.\033[0m")
     print("\033[95mResult: " + board.result() + "\033[0m")  # Enhanced game over message
 
-    print_result(player1_moves, player2_moves, player1, player2)
-
-    # Save moves to a file
-    save_to_file(player1_moves, player2_moves, player1, player2)
-
     play_again = input("Do you want to play again? Reply with 'Y' for yes: ")
     if play_again.lower() in ["yes", "y"]:
         change_names = input("Do you want to change your names? Reply with 'Y' for yes: ")
@@ -308,8 +201,10 @@ def play_game(player1, player2):
             player1, player2 = get_player_names()
         play_game(player1, player2)
 
-player1, player2 = get_player_names()
-board = chess.Board()
+if __name__ == "__main__":
+    player1, player2 = get_player_names()
+    board = chess.Board()
+    play_game(player1, player2)
 
 # Initialize Pygame
 pygame.init()
@@ -322,15 +217,5 @@ pygame.display.set_caption("AI Chess")
 pygame.font.init()
 font = pygame.font.SysFont(None, 30)
 
-print("""Available features:
-    Undo
-    Draw
-    History
-    """)
-
-while True:
-    draw_chessboard(ROWS, COLUMNS)
-    handle_events()
-
-    # Update the display
-    pygame.display.flip()
+while __name__ == "__main__":
+    game()
