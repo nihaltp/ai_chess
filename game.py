@@ -75,11 +75,11 @@ def draw_columns():
         screen.blit(text, text_rect)
 
 #handle events
-# def handle_events():
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#             pygame.quit()
-#             sys.exit()
+def handle_events():
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
 #         elif event.type == pygame.MOUSEBUTTONDOWN:
 #             handle_mouse_click()
 
@@ -136,7 +136,7 @@ def update(board):
 def game(board):
     update(board)
     draw_chessboard(ROWS, COLUMNS)
-    #handle_events()
+    handle_events()
 
     # Update the display
     pygame.display.flip()
