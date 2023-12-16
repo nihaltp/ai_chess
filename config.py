@@ -1,8 +1,8 @@
 import pygame
 
 # Constants
-width = 700
-height = 500
+SCREEN_WIDTH = 700
+SCREEN_HEIGHT = 500
 
 SQUARE_WIDTH = 400
 ROWS = 8
