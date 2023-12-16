@@ -2,6 +2,7 @@ import sys
 import chess
 import pygame
 from config import *
+from icecream import ic
 
 def highlight_square(mouse_x, mouse_y):
     # Determine the clicked square
@@ -74,10 +75,7 @@ def draw_chessboard(ROWS, COLUMNS):
 
 #handle mouse clicks
 def handle_mouse_click():
-    global highlight, mouse_x, mouse_y
-
-    square_rect = pygame.Rect(CHESS_X - 2, CHESS_Y - 2, SQUARE_WIDTH + 4, SQUARE_WIDTH + 4)
-    pygame.draw.rect(screen, WHITE, square_rect, width = 2 )
+    global highlight, mouse_x, mouse_y, move
 
     # Get the mouse coordinates
     mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -88,27 +86,23 @@ def handle_mouse_click():
 
     # Check if the click is within the chessboard boundaries
     if 0 <= clicked_row < ROWS and 0 <= clicked_column < COLUMNS:
-        value = clicked_row*8 + clicked_column
+        value = int(clicked_row*8 + clicked_column)
         clicked_square_value = SQUARES[value]
-        clicked_piece = chessboard[clicked_square_value]
-        print(f"Mouse clicked at Square : {clicked_square_value}")
-        if clicked_piece != "NA":
-            print(f"Mouse clicked on : {clicked_piece}")
+        
+        if len(move) != 4:
+            move += clicked_square_value
+        elif len(move) == 4:
+            move = clicked_square_value
 
         #Change the border to WHITE when clicked
         highlight = True
 
     else:
+        ic()
         highlight = False
+        move = ""
 
-#handle events
-def handle_events():
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            handle_mouse_click()
+    return move
 
 def update(board):
     board_value = ((str(board)).replace(" ", "")).replace("\n", "")
@@ -119,12 +113,11 @@ def update(board):
 def game(board):
     update(board)
     draw_chessboard(ROWS, COLUMNS)
-    handle_events()
 
     # Update the display
     pygame.display.flip()
 
-def input_name(prompt, position):
+def input_text(prompt, position):
     input_active = True
     input_text = []
 
@@ -155,10 +148,10 @@ def input_name(prompt, position):
 
 def get_name():
     # Get Player 1's name
-    player1 = input_name("Enter Player 1's name: ", (200, 100))
+    player1 = input_text("Enter Player 1's name: ", (200, 100))
 
     # Get Player 2's name
-    player2 = input_name("Enter Player 2's name: ", (200, 100))
+    player2 = input_text("Enter Player 2's name: ", (200, 100))
 
     return player1, player2
 
@@ -248,32 +241,14 @@ def print_result(player1_moves, player2_moves, player1, player2):
         move2 = player2_moves[i].uci() if i < len(player2_moves) else "N/A"
         print(f"{player1} : {move1}, {player2} : {move2}")
 
-def input_move(prompt):
-    input_active = True
-    input_text = []
-
-    while input_active:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == pygame.KEYDOWN:
-                if event.unicode == "\r":
-                    input_active = False
-                elif event.key == pygame.K_BACKSPACE:
-                    input_text = input_text[:-1]
-                else:
-                    input_text.append(event.unicode)
-
-        # Display the input text
-        current_text = ''.join(input_text)
-        value = f"{prompt} {current_text}"
-        text = font.render(value, True, BLACK)
-        text_rect = text.get_rect(topleft = (50,50))
-        screen.blit(text, text_rect)
-        pygame.display.flip()
-
-    return current_text.lower()
+def input_move():
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            move = handle_mouse_click()
+            return move
 
 def play_game(player1, player2):
     player1_moves = []  # Store Player 1's moves separately
@@ -284,15 +259,21 @@ def play_game(player1, player2):
 
     while not board.is_game_over():
         game(board)
-        move = input_move("Enter your move (e.g., e2e4): ")
+        move = input_move()
 
-        if move in ["history", "hist", "moves", "move", "m"]:
-            history(player1_moves,player2_moves)
+        if move == None:
             continue
+        
+        elif len(move) == 2:
+            move = input_move()
+
+        elif move in ["history", "hist", "moves", "move", "m"]:
+            history(player1_moves,player2_moves)
+            continue # Allow the player to input a new move
 
         elif move in ["hint", "hints", "h"]:
             valid_moves(board)
-            continue
+            continue # Allow the player to input a new move
 
         elif move in ["undo", "u"]:
             undo(players,player1_moves,player2_moves,board)
@@ -301,11 +282,11 @@ def play_game(player1, player2):
         elif move in ["draw", "d"]:
             if is_draw(player1_moves, player2_moves, players, current_player):
                 break
-            continue
+            continue # Allow the player to input a new move
 
         elif move in ["exit", "stop"]:
             break
-
+        
         else:
             try:
                 move = chess.Move.from_uci(move)
@@ -381,7 +362,7 @@ if __name__ == "__main__":
 
     # Pygame font setup
     pygame.font.init()
-    font = pygame.font.SysFont(None, 30)
+    font = pygame.font.SysFont(None, 28)
 
     player1, player2 = get_name()
     play_game(player1, player2)
