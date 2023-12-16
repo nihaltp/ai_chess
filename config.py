@@ -10,8 +10,13 @@ SQUARE_WIDTH = 400
 SQUARE_SIZE = SQUARE_WIDTH // COLUMNS
 
 # Where to start the chess board
+<<<<<<< HEAD
 CHESS_X = (SCREEN_WIDTH - SQUARE_WIDTH)/2
 CHESS_Y = (SCREEN_HEIGHT - SQUARE_WIDTH)/2
+=======
+chess_x = 150
+chess_y = 150
+>>>>>>> 94742acb587b5f3bd711bcd7ac7115919af1f6db
 
 # Colors
 WHITE = (255, 255, 255)
