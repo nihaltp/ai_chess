@@ -130,7 +130,6 @@ def input_name(prompt, position):
 
     while input_active:
         for event in pygame.event.get():
-            print(event)
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
@@ -249,6 +248,33 @@ def print_result(player1_moves, player2_moves, player1, player2):
         move2 = player2_moves[i].uci() if i < len(player2_moves) else "N/A"
         print(f"{player1} : {move1}, {player2} : {move2}")
 
+def input_move(prompt):
+    input_active = True
+    input_text = []
+
+    while input_active:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.unicode == "\r":
+                    input_active = False
+                elif event.key == pygame.K_BACKSPACE:
+                    input_text = input_text[:-1]
+                else:
+                    input_text.append(event.unicode)
+
+        # Display the input text
+        current_text = ''.join(input_text)
+        value = f"{prompt} {current_text}"
+        text = font.render(value, True, BLACK)
+        text_rect = text.get_rect(topleft = (50,50))
+        screen.blit(text, text_rect)
+        pygame.display.flip()
+
+    return current_text.lower()
+
 def play_game(player1, player2):
     player1_moves = []  # Store Player 1's moves separately
     player2_moves = []  # Store Player 2's moves separately
@@ -258,8 +284,7 @@ def play_game(player1, player2):
 
     while not board.is_game_over():
         game(board)
-        print(f"{players[current_player]}'s turn.")
-        move = (input("Enter your move (e.g., e2e4): ")).lower()
+        move = input_move("Enter your move (e.g., e2e4): ")
 
         if move in ["history", "hist", "moves", "move", "m"]:
             history(player1_moves,player2_moves)
