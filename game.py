@@ -3,17 +3,6 @@ import chess
 import pygame
 from config import *
 
-# Initialize Pygame
-pygame.init()
-
-# Create the Pygame window
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("AI Chess")
-
-# Pygame font setup
-pygame.font.init()
-font = pygame.font.SysFont(None, 30)
-
 def highlight_square(mouse_x, mouse_y):
     # Determine the clicked square
     clicked_column = (mouse_x - chess_x) // SQUARE_SIZE
@@ -49,8 +38,6 @@ def draw_columns():
 
 # Function to draw pieces on the board
 def draw_piece(piece, square_rect):
-    global PIECE_IMAGE
-
     # Get the piece image from the dictionary
     piece_img = PIECE_IMAGE.get(piece)
 
@@ -60,7 +47,7 @@ def draw_piece(piece, square_rect):
 
 # Draw chessboard
 def draw_chessboard(ROWS, COLUMNS):
-    global highlight #, mouse_x, mouse_y
+    global highlight, mouse_x, mouse_y
 
     screen.fill(BACKGROUND)
     square_rect = pygame.Rect(chess_x - 2, chess_y - 2, SQUARE_WIDTH + 4, SQUARE_WIDTH + 4)
@@ -84,15 +71,6 @@ def draw_chessboard(ROWS, COLUMNS):
 
     if highlight:
         highlight_square(mouse_x, mouse_y)
-
-#handle events
-def handle_events():
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            handle_mouse_click()
 
 #handle mouse clicks
 def handle_mouse_click():
@@ -121,8 +99,16 @@ def handle_mouse_click():
         highlight = True
 
     else:
-        print(f"Mouse clicked at ({mouse_x}, {mouse_y})")
         highlight = False
+
+#handle events
+def handle_events():
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            handle_mouse_click()
 
 def update(board):
     board_value = ((str(board)).replace(" ", "")).replace("\n", "")
@@ -138,20 +124,44 @@ def game(board):
     # Update the display
     pygame.display.flip()
 
+def input_name(prompt, position):
+    input_active = True
+    input_text = []
+
+    while input_active:
+        for event in pygame.event.get():
+            print(event)
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.unicode == "\r":
+                    input_active = False
+                elif event.key == pygame.K_BACKSPACE:
+                    input_text = input_text[:-1]
+                else:
+                    input_text.append(event.unicode)
+
+        screen.fill(BACKGROUND)
+
+        # Display the input text
+        current_text = ''.join(input_text)
+        value = f"{prompt} {current_text}"
+        text = font.render(value, True, BLACK)
+        text_rect = text.get_rect(topleft = position)
+        screen.blit(text, text_rect)
+        pygame.display.flip()
+
+    return current_text
+
 def get_name():
-    player1 = input("Enter Player 1's name: ")
-    player2 = input("Enter Player 2's name: ")
+    # Get Player 1's name
+    player1 = input_name("Enter Player 1's name: ", (200, 100))
+
+    # Get Player 2's name
+    player2 = input_name("Enter Player 2's name: ", (200, 100))
+
     return player1, player2
-
-def offer_draw():
-    draw_offer = input("Do you want to offer a draw? (yes/no): ")
-    if draw_offer.lower() in ["yes", "y"]:
-        return True
-
-def accept_draw():
-    draw_accept = input("Do you accept the draw offer? (yes/no): ")
-    if draw_accept.lower() in ["yes", "y"]:
-        return True
 
 def valid_moves(board):
     print("Valid Moves:")
@@ -190,19 +200,33 @@ def undo(players,player1_moves,player2_moves,board):
     else:
         print("No moves to undo.")
 
+def accept_draw():
+    draw_accept = input("Do you accept the draw offer? (yes/no): ")
+    if draw_accept.lower() in ["yes", "y"]:
+        return True
+
+def offer_draw():
+    draw_offer = input("Do you want to offer a draw? (yes/no): ")
+    if draw_offer.lower() in ["yes", "y"]:
+        return True
+
 def is_draw(player1_moves, player2_moves, players, current_player):
-    if len(player1_moves) >= 2 and len(player2_moves) >= 2:
-        print("Draw conditions are satisfied.")
-        if offer_draw():
-            if accept_draw():
-                print("The game is a draw by agreement.")
-                return True
-            else:
-                print(f"{players[current_player]} declined the draw offer.")
-        else:
-            print(f"{players[current_player]} declined the draw offer.")
-    else:
+    if len(player1_moves) < 2 and len(player2_moves) < 2:
         print("Draw offer rejected. Both players need to have made at least two moves.")
+        return
+
+    print("\nDraw conditions are satisfied.")
+
+    if not offer_draw():
+        print(f"{players[current_player]} declined the draw offer.\n")
+        return
+    
+    if accept_draw():
+        print("The game is a draw by agreement.")
+        return True
+    else:
+        player = 1 - current_player  # Switch player
+        print(f"{players[player]} declined the draw offer.\n")
 
 # Function to save moves to a text file
 def save_to_file(player1_moves, player2_moves, player1, player2):
@@ -323,5 +347,16 @@ def play_game(player1, player2):
         play_game(player1, player2)
 
 if __name__ == "__main__":
+    # Initialize Pygame
+    pygame.init()
+
+    # Create the Pygame window
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("AI Chess")
+
+    # Pygame font setup
+    pygame.font.init()
+    font = pygame.font.SysFont(None, 30)
+
     player1, player2 = get_name()
     play_game(player1, player2)
