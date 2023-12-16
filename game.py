@@ -3,24 +3,13 @@ import chess
 import pygame
 from config import *
 
-# Initialize Pygame
-pygame.init()
-
-# Create the Pygame window
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("AI Chess")
-
-# Pygame font setup
-pygame.font.init()
-font = pygame.font.SysFont(None, 30)
-
 def highlight_square(mouse_x, mouse_y):
     # Determine the clicked square
-    clicked_column = (mouse_x - chess_x) // SQUARE_SIZE
-    clicked_row = (mouse_y - chess_y) // SQUARE_SIZE
+    clicked_column = (mouse_x - CHESS_X) // SQUARE_SIZE
+    clicked_row = (mouse_y - CHESS_Y) // SQUARE_SIZE
 
-    x = chess_x + (clicked_column * SQUARE_SIZE)
-    y = chess_y + (clicked_row * SQUARE_SIZE)
+    x = CHESS_X + (clicked_column * SQUARE_SIZE)
+    y = CHESS_Y + (clicked_row * SQUARE_SIZE)
 
     square_rect = pygame.Rect(x, y, SQUARE_SIZE, SQUARE_SIZE)
     pygame.draw.rect(screen, GOLD, square_rect, width = 2 )
@@ -30,10 +19,10 @@ def draw_rows():
     for i, row_value in enumerate(RANK_NAMES):
         text = font.render(str(row_value), True, TEXT_COLOR)
         # Left
-        text_rect = text.get_rect(center=(chess_x - 30, chess_y + i * SQUARE_SIZE + SQUARE_SIZE // 2))
+        text_rect = text.get_rect(center=(CHESS_X - 30, CHESS_Y + i * SQUARE_SIZE + SQUARE_SIZE // 2))
         screen.blit(text, text_rect)
         # Right
-        text_rect = text.get_rect(center=(chess_x + 430, chess_y + i * SQUARE_SIZE + SQUARE_SIZE // 2))
+        text_rect = text.get_rect(center=(CHESS_X + 430, CHESS_Y + i * SQUARE_SIZE + SQUARE_SIZE // 2))
         screen.blit(text, text_rect)
 
 # Draw chessboard COLUMNS
@@ -41,16 +30,14 @@ def draw_columns():
     for i, col_value in enumerate(FILE_NAMES):
         # Top
         text = font.render(col_value, True, TEXT_COLOR)
-        text_rect = text.get_rect(center=(chess_x + i * SQUARE_SIZE + SQUARE_SIZE // 2, chess_y - 30))
+        text_rect = text.get_rect(center=(CHESS_X + i * SQUARE_SIZE + SQUARE_SIZE // 2, CHESS_Y - 30))
         screen.blit(text, text_rect)
         # Bottom
-        text_rect = text.get_rect(center=(chess_x + i * SQUARE_SIZE + SQUARE_SIZE // 2, chess_y + 430))
+        text_rect = text.get_rect(center=(CHESS_X + i * SQUARE_SIZE + SQUARE_SIZE // 2, CHESS_Y + 430))
         screen.blit(text, text_rect)
 
 # Function to draw pieces on the board
 def draw_piece(piece, square_rect):
-    global PIECE_IMAGE
-
     # Get the piece image from the dictionary
     piece_img = PIECE_IMAGE.get(piece)
 
@@ -60,17 +47,17 @@ def draw_piece(piece, square_rect):
 
 # Draw chessboard
 def draw_chessboard(ROWS, COLUMNS):
-    global highlight #, mouse_x, mouse_y
+    global highlight, mouse_x, mouse_y
 
     screen.fill(BACKGROUND)
-    square_rect = pygame.Rect(chess_x - 2, chess_y - 2, SQUARE_WIDTH + 4, SQUARE_WIDTH + 4)
+    square_rect = pygame.Rect(CHESS_X - 2, CHESS_Y - 2, SQUARE_WIDTH + 4, SQUARE_WIDTH + 4)
     pygame.draw.rect(screen, BOARD_BORDER, square_rect, width = 2 )
 
     # Draw each square independently
     for row in range(ROWS):
         for column in range(COLUMNS):
             color = WHITE if (row + column) % 2 == 0 else GREY
-            square_rect = pygame.Rect(chess_x + column * SQUARE_SIZE, chess_y + row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE)
+            square_rect = pygame.Rect(CHESS_X + column * SQUARE_SIZE, CHESS_Y + row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE)
             pygame.draw.rect(screen, color, square_rect)
 
             # Check chessboard configuration and blit the corresponding image
@@ -85,28 +72,19 @@ def draw_chessboard(ROWS, COLUMNS):
     if highlight:
         highlight_square(mouse_x, mouse_y)
 
-#handle events
-def handle_events():
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            handle_mouse_click()
-
 #handle mouse clicks
 def handle_mouse_click():
     global highlight, mouse_x, mouse_y
 
-    square_rect = pygame.Rect(chess_x - 2, chess_y - 2, SQUARE_WIDTH + 4, SQUARE_WIDTH + 4)
+    square_rect = pygame.Rect(CHESS_X - 2, CHESS_Y - 2, SQUARE_WIDTH + 4, SQUARE_WIDTH + 4)
     pygame.draw.rect(screen, WHITE, square_rect, width = 2 )
 
     # Get the mouse coordinates
     mouse_x, mouse_y = pygame.mouse.get_pos()
 
     # Determine the clicked square
-    clicked_column = (mouse_x - chess_x) // SQUARE_SIZE
-    clicked_row = (mouse_y - chess_y) // SQUARE_SIZE
+    clicked_column = (mouse_x - CHESS_X) // SQUARE_SIZE
+    clicked_row = (mouse_y - CHESS_Y) // SQUARE_SIZE
 
     # Check if the click is within the chessboard boundaries
     if 0 <= clicked_row < ROWS and 0 <= clicked_column < COLUMNS:
@@ -121,8 +99,16 @@ def handle_mouse_click():
         highlight = True
 
     else:
-        print(f"Mouse clicked at ({mouse_x}, {mouse_y})")
         highlight = False
+
+#handle events
+def handle_events():
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            handle_mouse_click()
 
 def update(board):
     board_value = ((str(board)).replace(" ", "")).replace("\n", "")
@@ -138,20 +124,43 @@ def game(board):
     # Update the display
     pygame.display.flip()
 
+def input_name(prompt, position):
+    input_active = True
+    input_text = []
+
+    while input_active:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.unicode == "\r":
+                    input_active = False
+                elif event.key == pygame.K_BACKSPACE:
+                    input_text = input_text[:-1]
+                else:
+                    input_text.append(event.unicode)
+
+        screen.fill(BACKGROUND)
+
+        # Display the input text
+        current_text = ''.join(input_text)
+        value = f"{prompt} {current_text}"
+        text = font.render(value, True, BLACK)
+        text_rect = text.get_rect(topleft = position)
+        screen.blit(text, text_rect)
+        pygame.display.flip()
+
+    return current_text
+
 def get_name():
-    player1 = input("Enter Player 1's name: ")
-    player2 = input("Enter Player 2's name: ")
+    # Get Player 1's name
+    player1 = input_name("Enter Player 1's name: ", (200, 100))
+
+    # Get Player 2's name
+    player2 = input_name("Enter Player 2's name: ", (200, 100))
+
     return player1, player2
-
-def offer_draw():
-    draw_offer = input("Do you want to offer a draw? (yes/no): ")
-    if draw_offer.lower() in ["yes", "y"]:
-        return True
-
-def accept_draw():
-    draw_accept = input("Do you accept the draw offer? (yes/no): ")
-    if draw_accept.lower() in ["yes", "y"]:
-        return True
 
 def valid_moves(board):
     print("Valid Moves:")
@@ -190,19 +199,33 @@ def undo(players,player1_moves,player2_moves,board):
     else:
         print("No moves to undo.")
 
+def accept_draw():
+    draw_accept = input("Do you accept the draw offer? (yes/no): ")
+    if draw_accept.lower() in ["yes", "y"]:
+        return True
+
+def offer_draw():
+    draw_offer = input("Do you want to offer a draw? (yes/no): ")
+    if draw_offer.lower() in ["yes", "y"]:
+        return True
+
 def is_draw(player1_moves, player2_moves, players, current_player):
-    if len(player1_moves) >= 2 and len(player2_moves) >= 2:
-        print("Draw conditions are satisfied.")
-        if offer_draw():
-            if accept_draw():
-                print("The game is a draw by agreement.")
-                return True
-            else:
-                print(f"{players[current_player]} declined the draw offer.")
-        else:
-            print(f"{players[current_player]} declined the draw offer.")
-    else:
+    if len(player1_moves) < 2 and len(player2_moves) < 2:
         print("Draw offer rejected. Both players need to have made at least two moves.")
+        return
+
+    print("\nDraw conditions are satisfied.")
+
+    if not offer_draw():
+        print(f"{players[current_player]} declined the draw offer.\n")
+        return
+    
+    if accept_draw():
+        print("The game is a draw by agreement.")
+        return True
+    else:
+        player = 1 - current_player  # Switch player
+        print(f"{players[player]} declined the draw offer.\n")
 
 # Function to save moves to a text file
 def save_to_file(player1_moves, player2_moves, player1, player2):
@@ -225,6 +248,33 @@ def print_result(player1_moves, player2_moves, player1, player2):
         move2 = player2_moves[i].uci() if i < len(player2_moves) else "N/A"
         print(f"{player1} : {move1}, {player2} : {move2}")
 
+def input_move(prompt):
+    input_active = True
+    input_text = []
+
+    while input_active:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.unicode == "\r":
+                    input_active = False
+                elif event.key == pygame.K_BACKSPACE:
+                    input_text = input_text[:-1]
+                else:
+                    input_text.append(event.unicode)
+
+        # Display the input text
+        current_text = ''.join(input_text)
+        value = f"{prompt} {current_text}"
+        text = font.render(value, True, BLACK)
+        text_rect = text.get_rect(topleft = (50,50))
+        screen.blit(text, text_rect)
+        pygame.display.flip()
+
+    return current_text.lower()
+
 def play_game(player1, player2):
     player1_moves = []  # Store Player 1's moves separately
     player2_moves = []  # Store Player 2's moves separately
@@ -234,8 +284,7 @@ def play_game(player1, player2):
 
     while not board.is_game_over():
         game(board)
-        print(f"{players[current_player]}'s turn.")
-        move = (input("Enter your move (e.g., e2e4): ")).lower()
+        move = input_move("Enter your move (e.g., e2e4): ")
 
         if move in ["history", "hist", "moves", "move", "m"]:
             history(player1_moves,player2_moves)
@@ -323,5 +372,16 @@ def play_game(player1, player2):
         play_game(player1, player2)
 
 if __name__ == "__main__":
+    # Initialize Pygame
+    pygame.init()
+
+    # Create the Pygame window
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("AI Chess")
+
+    # Pygame font setup
+    pygame.font.init()
+    font = pygame.font.SysFont(None, 30)
+
     player1, player2 = get_name()
     play_game(player1, player2)

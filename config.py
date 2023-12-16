@@ -2,16 +2,16 @@ import pygame
 
 # Constants
 SCREEN_WIDTH = 700
-SCREEN_HEIGHT = 500
+SCREEN_HEIGHT = 700
 
-SQUARE_WIDTH = 400
 ROWS = 8
 COLUMNS = 8
+SQUARE_WIDTH = 400
 SQUARE_SIZE = SQUARE_WIDTH // COLUMNS
 
 # Where to start the chess board
-chess_x = 150
-chess_y = 50
+CHESS_X = (SCREEN_WIDTH - SQUARE_WIDTH)/2
+CHESS_Y = (SCREEN_HEIGHT - SQUARE_WIDTH)/2
 
 # Colors
 WHITE = (255, 255, 255)
