@@ -325,6 +325,14 @@ def perform_castling(board, move):
         board.push(chess.Move.from_uci("e8c8"))  # Move the King
         board.push(chess.Move.from_uci("a8d8"))  # Move the Rook
 
+def store_moves(player1_moves, player2_moves, current_player, move):
+    if current_player == 0:
+        player1_moves.append(move)  # Store Player 1's move
+    else:
+        player2_moves.append(move)  # Store Player 2's move
+
+    current_player = 1 - current_player  # Switch players
+
 def play_game(player1, player2):
     global player1_moves, player2_moves, board, players, current_player
     player1_moves = []  # Store Player 1's moves separately
@@ -356,12 +364,7 @@ def play_game(player1, player2):
                     else:
                         board.push(move)  # For normal moves
 
-                    if current_player == 0:
-                        player1_moves.append(move)  # Store Player 1's move
-                    else:
-                        player2_moves.append(move)  # Store Player 2's move
-
-                    current_player = 1 - current_player  # Switch players
+                    store_moves(player1_moves, player2_moves, current_player, move)
 
                     if board.is_checkmate():
                         print(f"Checkmate! {players[current_player]} wins.")
