@@ -12,6 +12,17 @@ def highlight_square(value1, value2, colour):
     square_rect = pygame.Rect(x, y, SQUARE_SIZE, SQUARE_SIZE)
     pygame.draw.rect(screen, colour, square_rect, width = 2 )
 
+def highlight_move(move):
+        # Find the location
+        value = SQUARES.index(move)
+
+        a = value/8
+        row = int(a)
+        column = (a - row)*8
+        highlight_square(column, row, GOLD)
+
+        pygame.display.flip()
+
 def valid_moves(board):
     for move in board.legal_moves:
         # clear the chessboard after every hint
@@ -19,23 +30,10 @@ def valid_moves(board):
 
         move = move.uci()
         move_1 = move[:2] 
+        highlight_move(move_1)
         move_2 = move[2:]
+        highlight_move(move_2)
 
-        # Find the location
-        value_1 = SQUARES.index(move_1)
-        value_2 = SQUARES.index(move_2)
-
-        a = value_1/8
-        row_1 = int(a)
-        column_1 = (a - row_1)*8
-        highlight_square(column_1, row_1, GOLD)
-
-        a = value_2/8
-        row_2 = int(a)
-        column_2 = (a - row_2)*8
-        highlight_square(column_2, row_2, GOLD)
-
-        pygame.display.flip()
         # wait a second
         time.sleep(1)
 
