@@ -5,16 +5,12 @@ import pygame
 from config import *
 from icecream import ic
 
-def highlight_square(mouse_x, mouse_y):
-    # Determine the clicked square
-    clicked_column = (mouse_x - CHESS_X) // SQUARE_SIZE
-    clicked_row = (mouse_y - CHESS_Y) // SQUARE_SIZE
-
-    x = CHESS_X + (clicked_column * SQUARE_SIZE)
-    y = CHESS_Y + (clicked_row * SQUARE_SIZE)
-
+def highlight_square(value1, value2, colour):
+    x = CHESS_X + (value1 * SQUARE_SIZE)
+    y = CHESS_Y + (value2 * SQUARE_SIZE)
+ 
     square_rect = pygame.Rect(x, y, SQUARE_SIZE, SQUARE_SIZE)
-    pygame.draw.rect(screen, GOLD, square_rect, width = 2 )
+    pygame.draw.rect(screen, colour, square_rect, width = 2 )
 
 def valid_moves(board):
     for move in board.legal_moves:
@@ -32,23 +28,14 @@ def valid_moves(board):
         a = value_1/8
         row_1 = int(a)
         column_1 = (a - row_1)*8
+        highlight_square(column_1, row_1, GOLD)
 
         a = value_2/8
         row_2 = int(a)
         column_2 = (a - row_2)*8
+        highlight_square(column_2, row_2, GOLD)
 
-        x_1 = CHESS_X + (column_1 * SQUARE_SIZE)
-        y_1 = CHESS_Y + (row_1 * SQUARE_SIZE)
-
-        x_2 = CHESS_X + (column_2 * SQUARE_SIZE)
-        y_2 = CHESS_Y + (row_2 * SQUARE_SIZE)
-
-        square_rect = pygame.Rect(x_1, y_1, SQUARE_SIZE, SQUARE_SIZE)
-        pygame.draw.rect(screen, GOLD, square_rect, width = 2 )
-        square_rect = pygame.Rect(x_2, y_2, SQUARE_SIZE, SQUARE_SIZE)
-        pygame.draw.rect(screen, GOLD, square_rect, width = 2 )
         pygame.display.flip()
-
         # wait a second
         time.sleep(1)
 
@@ -108,7 +95,11 @@ def draw_chessboard(ROWS, COLUMNS):
     draw_columns()
 
     if highlight:
-        highlight_square(mouse_x, mouse_y)
+        # Determine the clicked square
+        clicked_column = (mouse_x - CHESS_X) // SQUARE_SIZE
+        clicked_row = (mouse_y - CHESS_Y) // SQUARE_SIZE
+
+        highlight_square(clicked_column, clicked_row, GOLD)
 
 def handle_buttons(mouse_x, mouse_y):
     global player1_moves, player2_moves, board, players, current_player
