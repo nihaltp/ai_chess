@@ -307,6 +307,24 @@ def handle_events():
             move = handle_mouse_click()
             return move
 
+def perform_castling(board, move):
+    board.push(move)  # Perform castling
+    if move.from_square == chess.E1 and move.to_square == chess.G1:  # Kingside castling for white
+        board.push(chess.Move.from_uci("e1g1"))  # Move the King
+        board.push(chess.Move.from_uci("h1f1"))  # Move the Rook
+
+    elif move.from_square == chess.E1 and move.to_square == chess.C1:  # Queenside castling for white
+        board.push(chess.Move.from_uci("e1c1"))  # Move the King
+        board.push(chess.Move.from_uci("a1d1"))  # Move the Rook
+
+    elif move.from_square == chess.E8 and move.to_square == chess.G8:  # Kingside castling for black
+        board.push(chess.Move.from_uci("e8g8"))  # Move the King
+        board.push(chess.Move.from_uci("h8f8"))  # Move the Rook
+
+    elif move.from_square == chess.E8 and move.to_square == chess.C8:  # Queenside castling for black
+        board.push(chess.Move.from_uci("e8c8"))  # Move the King
+        board.push(chess.Move.from_uci("a8d8"))  # Move the Rook
+
 def play_game(player1, player2):
     global player1_moves, player2_moves, board, players, current_player
     player1_moves = []  # Store Player 1's moves separately
@@ -333,22 +351,7 @@ def play_game(player1, player2):
                 move = chess.Move.from_uci(move)
                 if move in board.legal_moves:
                     if board.is_castling(move):  # Check for castling
-                        board.push(move)  # Perform castling
-                        if move.from_square == chess.E1 and move.to_square == chess.G1:  # Kingside castling for white
-                            board.push(chess.Move.from_uci("e1g1"))  # Move the King
-                            board.push(chess.Move.from_uci("h1f1"))  # Move the Rook
-
-                        elif move.from_square == chess.E1 and move.to_square == chess.C1:  # Queenside castling for white
-                            board.push(chess.Move.from_uci("e1c1"))  # Move the King
-                            board.push(chess.Move.from_uci("a1d1"))  # Move the Rook
-
-                        elif move.from_square == chess.E8 and move.to_square == chess.G8:  # Kingside castling for black
-                            board.push(chess.Move.from_uci("e8g8"))  # Move the King
-                            board.push(chess.Move.from_uci("h8f8"))  # Move the Rook
-
-                        elif move.from_square == chess.E8 and move.to_square == chess.C8:  # Queenside castling for black
-                            board.push(chess.Move.from_uci("e8c8"))  # Move the King
-                            board.push(chess.Move.from_uci("a8d8"))  # Move the Rook
+                        perform_castling(board, move)
 
                     else:
                         board.push(move)  # For normal moves
@@ -378,8 +381,6 @@ def play_game(player1, player2):
     print("\033[95mResult: " + board.result() + "\033[0m")  # Enhanced game over message
 
     print_result(player1_moves, player2_moves, player1, player2)
-
-    # Save moves to a file
     save_to_file(player1_moves, player2_moves, player1, player2)
 
     play_again = input("Do you want to play again? Reply with 'Y' for yes: ")
