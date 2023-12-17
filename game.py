@@ -37,27 +37,26 @@ def valid_moves(board):
         # wait a second
         time.sleep(1)
 
+def draw_text_at_location(text, x, y):
+    text = font.render(str(text), True, TEXT_COLOR)
+    text_rect = text.get_rect(center=(x, y))
+    screen.blit(text, text_rect)
+
 # Draw chessboard ROWS
 def draw_rows():
     for i, row_value in enumerate(RANK_NAMES):
-        text = font.render(str(row_value), True, TEXT_COLOR)
         # Left
-        text_rect = text.get_rect(center=(CHESS_X - 30, CHESS_Y + i * SQUARE_SIZE + SQUARE_SIZE // 2))
-        screen.blit(text, text_rect)
+        draw_text_at_location(row_value, CHESS_X - 30, CHESS_Y + i * SQUARE_SIZE + SQUARE_SIZE // 2)
         # Right
-        text_rect = text.get_rect(center=(CHESS_X + 430, CHESS_Y + i * SQUARE_SIZE + SQUARE_SIZE // 2))
-        screen.blit(text, text_rect)
+        draw_text_at_location(row_value, CHESS_X + 430, CHESS_Y + i * SQUARE_SIZE + SQUARE_SIZE // 2)
 
 # Draw chessboard COLUMNS
 def draw_columns():
-    for i, col_value in enumerate(FILE_NAMES):
+    for i, column_value in enumerate(FILE_NAMES):
         # Top
-        text = font.render(col_value, True, TEXT_COLOR)
-        text_rect = text.get_rect(center=(CHESS_X + i * SQUARE_SIZE + SQUARE_SIZE // 2, CHESS_Y - 30))
-        screen.blit(text, text_rect)
+        draw_text_at_location(column_value, CHESS_X + i * SQUARE_SIZE + SQUARE_SIZE // 2, CHESS_Y - 30)
         # Bottom
-        text_rect = text.get_rect(center=(CHESS_X + i * SQUARE_SIZE + SQUARE_SIZE // 2, CHESS_Y + 430))
-        screen.blit(text, text_rect)
+        draw_text_at_location(column_value, CHESS_X + i * SQUARE_SIZE + SQUARE_SIZE // 2, CHESS_Y + 430)
 
 # Function to draw pieces on the board
 def draw_piece(piece, square_rect):
