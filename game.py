@@ -78,15 +78,7 @@ def draw_chessboard(ROWS, COLUMNS):
     # Draw each square independently
     for row in range(ROWS):
         for column in range(COLUMNS):
-            color = WHITE if (row + column) % 2 == 0 else GREY
-            square_rect = pygame.Rect(CHESS_X + column * SQUARE_SIZE, CHESS_Y + row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE)
-            pygame.draw.rect(screen, color, square_rect)
-
-            # Check chessboard configuration and blit the corresponding image
-            value = row * 8 + column
-            piece_key = SQUARES[value]
-            piece = chessboard[piece_key]
-            draw_piece(piece, square_rect)
+            draw_square(row, column)
 
     draw_rows()
     draw_columns()
@@ -97,6 +89,17 @@ def draw_chessboard(ROWS, COLUMNS):
         clicked_row = (mouse_y - CHESS_Y) // SQUARE_SIZE
 
         highlight_square(clicked_column, clicked_row, GOLD)
+
+def draw_square(row, column):
+    color = WHITE if (row + column) % 2 == 0 else GREY
+    square_rect = pygame.Rect(CHESS_X + column * SQUARE_SIZE, CHESS_Y + row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE)
+    pygame.draw.rect(screen, color, square_rect)
+
+    # Check chessboard configuration and blit the corresponding image
+    value = row * 8 + column
+    piece_key = SQUARES[value]
+    piece = chessboard[piece_key]
+    draw_piece(piece, square_rect)
 
 def handle_buttons(mouse_x, mouse_y):
     global player1_moves, player2_moves, board, players, current_player
