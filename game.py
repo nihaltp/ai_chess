@@ -162,31 +162,18 @@ def update(board):
         chessboard[j] = PIECE_VALUE.get(i)
 
 def draw_buttons():
-    history_button = pygame.Rect(BUTTON_HISTORY_POS, (BUTTON_WIDTH, BUTTON_HEIGHT))
-    hint_button = pygame.Rect(BUTTON_HINT_POS, (BUTTON_WIDTH, BUTTON_HEIGHT))
-    undo_button = pygame.Rect(BUTTON_UNDO_POS, (BUTTON_WIDTH, BUTTON_HEIGHT))
-    draw_button = pygame.Rect(BUTTON_DRAW_POS, (BUTTON_WIDTH, BUTTON_HEIGHT))
-    stop_button = pygame.Rect(BUTTON_STOP_POS, (BUTTON_WIDTH, BUTTON_HEIGHT))
+    for i,button_name in enumerate(BUTTONS):
+        button_position = BUTTON_POSITIONS[button_name]
 
-    pygame.draw.rect(screen, BUTTON_COLOR, history_button)
-    pygame.draw.rect(screen, BUTTON_COLOR, hint_button)
-    pygame.draw.rect(screen, BUTTON_COLOR, undo_button)
-    pygame.draw.rect(screen, BUTTON_COLOR, draw_button)
-    pygame.draw.rect(screen, BUTTON_COLOR, stop_button)
+        button = pygame.Rect(button_position, (BUTTON_WIDTH, BUTTON_HEIGHT))
+        pygame.draw.rect(screen, BUTTON_COLOR, button)
 
-    font_buttons = pygame.font.SysFont(None, 24)
-    text_history = font_buttons.render("History", True, TEXT_COLOR)
-    text_hint = font_buttons.render("Hint", True, TEXT_COLOR)
-    text_undo = font_buttons.render("Undo", True, TEXT_COLOR)
-    text_draw = font_buttons.render("Draw", True, TEXT_COLOR)
-    text_stop = font_buttons.render("Stop", True, TEXT_COLOR)
+        font_buttons = pygame.font.SysFont(None, 24)
+        text = font_buttons.render(button_name, True, TEXT_COLOR)
 
-    screen.blit(text_history, (BUTTON_HISTORY_POS[0] + BUTTON_MARGIN_x, BUTTON_HISTORY_POS[1] + BUTTON_MARGIN_Y))
-    screen.blit(text_hint, (BUTTON_HINT_POS[0] + BUTTON_MARGIN_x, BUTTON_HINT_POS[1] + BUTTON_MARGIN_Y))
-    screen.blit(text_undo, (BUTTON_UNDO_POS[0] + BUTTON_MARGIN_x, BUTTON_UNDO_POS[1] + BUTTON_MARGIN_Y))
-    screen.blit(text_draw, (BUTTON_DRAW_POS[0] + BUTTON_MARGIN_x, BUTTON_DRAW_POS[1] + BUTTON_MARGIN_Y))
-    screen.blit(text_stop, (BUTTON_STOP_POS[0] + BUTTON_MARGIN_x, BUTTON_STOP_POS[1] + BUTTON_MARGIN_Y))
-    
+        text_rect = text.get_rect(center=(button_position[0] + BUTTON_MARGIN_X, button_position[1] + BUTTON_MARGIN_Y))
+        screen.blit(text, text_rect)
+
 def game(board):
     update(board)
     draw_chessboard(ROWS, COLUMNS)
