@@ -101,29 +101,28 @@ def draw_square(row, column):
     piece = chessboard[piece_key]
     draw_piece(piece, square_rect)
 
-def handle_buttons(mouse_x, mouse_y):
+def button_action(button_name):
     global player1_moves, player2_moves, board, players, current_player
 
-    if BUTTON_HISTORY_POS[0] <= mouse_x <= BUTTON_HISTORY_POS[0] + BUTTON_WIDTH and BUTTON_HISTORY_POS[1] <= mouse_y <= BUTTON_HISTORY_POS[1] + BUTTON_HEIGHT:
+    if button_name == "History":
         history(player1_moves,player2_moves)
-        ic()
-
-    elif BUTTON_HINT_POS[0] <= mouse_x <= BUTTON_HINT_POS[0] + BUTTON_WIDTH and BUTTON_HINT_POS[1] <= mouse_y <= BUTTON_HINT_POS[1] + BUTTON_HEIGHT:
+    elif button_name == "Hint":
         valid_moves(board)
-        ic()
-
-    elif BUTTON_UNDO_POS[0] <= mouse_x <= BUTTON_UNDO_POS[0] + BUTTON_WIDTH and BUTTON_UNDO_POS[1] <= mouse_y <= BUTTON_UNDO_POS[1] + BUTTON_HEIGHT:
+    elif button_name == "Undo":
         undo(players,player1_moves,player2_moves,board)
-        ic()
-
-    elif BUTTON_DRAW_POS[0] <= mouse_x <= BUTTON_DRAW_POS[0] + BUTTON_WIDTH and BUTTON_DRAW_POS[1] <= mouse_y <= BUTTON_DRAW_POS[1] + BUTTON_HEIGHT:
+    elif button_name == "Draw":
         # if is_draw(player1_moves, player2_moves, players, current_player):
         #     ic()
         ic()
-
-    elif BUTTON_STOP_POS[0] <= mouse_x <= BUTTON_STOP_POS[0] + BUTTON_WIDTH and BUTTON_STOP_POS[1] <= mouse_y <= BUTTON_STOP_POS[1] + BUTTON_HEIGHT:
+    elif button_name == "Stop":
         pygame.quit()
         sys.exit()
+
+def handle_buttons(mouse_x, mouse_y):
+    for button_name, pos in BUTTON_POSITIONS.items():
+        if pos[0] <= mouse_x <= pos[0] + BUTTON_WIDTH and pos[1] <= mouse_y <= pos[1] + BUTTON_HEIGHT:
+            button_action(button_name)
+            ic()
 
 #handle mouse clicks
 def handle_mouse_click():
