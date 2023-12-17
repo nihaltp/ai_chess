@@ -1,4 +1,5 @@
 import sys
+import time
 import chess
 import pygame
 from config import *
@@ -14,6 +15,42 @@ def highlight_square(mouse_x, mouse_y):
 
     square_rect = pygame.Rect(x, y, SQUARE_SIZE, SQUARE_SIZE)
     pygame.draw.rect(screen, GOLD, square_rect, width = 2 )
+
+def valid_moves(board):
+    for move in board.legal_moves:
+        # clear the chessboard after every hint
+        draw_chessboard(ROWS, COLUMNS)
+
+        move = move.uci()
+        move_1 = move[:2] 
+        move_2 = move[2:]
+
+        # Find the location
+        value_1 = SQUARES.index(move_1)
+        value_2 = SQUARES.index(move_2)
+
+        a = value_1/8
+        row_1 = int(a)
+        column_1 = (a - row_1)*8
+
+        a = value_2/8
+        row_2 = int(a)
+        column_2 = (a - row_2)*8
+
+        x_1 = CHESS_X + (column_1 * SQUARE_SIZE)
+        y_1 = CHESS_Y + (row_1 * SQUARE_SIZE)
+
+        x_2 = CHESS_X + (column_2 * SQUARE_SIZE)
+        y_2 = CHESS_Y + (row_2 * SQUARE_SIZE)
+
+        square_rect = pygame.Rect(x_1, y_1, SQUARE_SIZE, SQUARE_SIZE)
+        pygame.draw.rect(screen, GOLD, square_rect, width = 2 )
+        square_rect = pygame.Rect(x_2, y_2, SQUARE_SIZE, SQUARE_SIZE)
+        pygame.draw.rect(screen, GOLD, square_rect, width = 2 )
+        pygame.display.flip()
+
+        # wait a second
+        time.sleep(1)
 
 # Draw chessboard ROWS
 def draw_rows():
@@ -73,6 +110,30 @@ def draw_chessboard(ROWS, COLUMNS):
     if highlight:
         highlight_square(mouse_x, mouse_y)
 
+def handle_buttons(mouse_x, mouse_y):
+    global player1_moves, player2_moves, board, players, current_player
+
+    if BUTTON_HISTORY_POS[0] <= mouse_x <= BUTTON_HISTORY_POS[0] + BUTTON_WIDTH and BUTTON_HISTORY_POS[1] <= mouse_y <= BUTTON_HISTORY_POS[1] + BUTTON_HEIGHT:
+        history(player1_moves,player2_moves)
+        ic()
+
+    elif BUTTON_HINT_POS[0] <= mouse_x <= BUTTON_HINT_POS[0] + BUTTON_WIDTH and BUTTON_HINT_POS[1] <= mouse_y <= BUTTON_HINT_POS[1] + BUTTON_HEIGHT:
+        valid_moves(board)
+        ic()
+
+    elif BUTTON_UNDO_POS[0] <= mouse_x <= BUTTON_UNDO_POS[0] + BUTTON_WIDTH and BUTTON_UNDO_POS[1] <= mouse_y <= BUTTON_UNDO_POS[1] + BUTTON_HEIGHT:
+        undo(players,player1_moves,player2_moves,board)
+        ic()
+
+    elif BUTTON_DRAW_POS[0] <= mouse_x <= BUTTON_DRAW_POS[0] + BUTTON_WIDTH and BUTTON_DRAW_POS[1] <= mouse_y <= BUTTON_DRAW_POS[1] + BUTTON_HEIGHT:
+        # if is_draw(player1_moves, player2_moves, players, current_player):
+        #     ic()
+        ic()
+
+    elif BUTTON_STOP_POS[0] <= mouse_x <= BUTTON_STOP_POS[0] + BUTTON_WIDTH and BUTTON_STOP_POS[1] <= mouse_y <= BUTTON_STOP_POS[1] + BUTTON_HEIGHT:
+        pygame.quit()
+        sys.exit()
+
 #handle mouse clicks
 def handle_mouse_click():
     global highlight, mouse_x, mouse_y, move
@@ -98,21 +159,48 @@ def handle_mouse_click():
         highlight = True
 
     else:
-        ic()
+        handle_buttons(mouse_x, mouse_y)
         highlight = False
         move = ""
 
     return move
 
 def update(board):
-    board_value = ((str(board)).replace(" ", "")).replace("\n", "")
+    board_value = str(board).replace(" ", "").replace("\n", "")
     for i, j in zip(board_value, SQUARES):
         # Get the piece image from the dictionary
         chessboard[j] = PIECE_VALUE.get(i)
 
+def draw_buttons():
+    history_button = pygame.Rect(BUTTON_HISTORY_POS, (BUTTON_WIDTH, BUTTON_HEIGHT))
+    hint_button = pygame.Rect(BUTTON_HINT_POS, (BUTTON_WIDTH, BUTTON_HEIGHT))
+    undo_button = pygame.Rect(BUTTON_UNDO_POS, (BUTTON_WIDTH, BUTTON_HEIGHT))
+    draw_button = pygame.Rect(BUTTON_DRAW_POS, (BUTTON_WIDTH, BUTTON_HEIGHT))
+    stop_button = pygame.Rect(BUTTON_STOP_POS, (BUTTON_WIDTH, BUTTON_HEIGHT))
+
+    pygame.draw.rect(screen, BUTTON_COLOR, history_button)
+    pygame.draw.rect(screen, BUTTON_COLOR, hint_button)
+    pygame.draw.rect(screen, BUTTON_COLOR, undo_button)
+    pygame.draw.rect(screen, BUTTON_COLOR, draw_button)
+    pygame.draw.rect(screen, BUTTON_COLOR, stop_button)
+
+    font_buttons = pygame.font.SysFont(None, 24)
+    text_history = font_buttons.render("History", True, TEXT_COLOR)
+    text_hint = font_buttons.render("Hint", True, TEXT_COLOR)
+    text_undo = font_buttons.render("Undo", True, TEXT_COLOR)
+    text_draw = font_buttons.render("Draw", True, TEXT_COLOR)
+    text_stop = font_buttons.render("Stop", True, TEXT_COLOR)
+
+    screen.blit(text_history, (BUTTON_HISTORY_POS[0] + BUTTON_MARGIN_x, BUTTON_HISTORY_POS[1] + BUTTON_MARGIN_Y))
+    screen.blit(text_hint, (BUTTON_HINT_POS[0] + BUTTON_MARGIN_x, BUTTON_HINT_POS[1] + BUTTON_MARGIN_Y))
+    screen.blit(text_undo, (BUTTON_UNDO_POS[0] + BUTTON_MARGIN_x, BUTTON_UNDO_POS[1] + BUTTON_MARGIN_Y))
+    screen.blit(text_draw, (BUTTON_DRAW_POS[0] + BUTTON_MARGIN_x, BUTTON_DRAW_POS[1] + BUTTON_MARGIN_Y))
+    screen.blit(text_stop, (BUTTON_STOP_POS[0] + BUTTON_MARGIN_x, BUTTON_STOP_POS[1] + BUTTON_MARGIN_Y))
+    
 def game(board):
     update(board)
     draw_chessboard(ROWS, COLUMNS)
+    draw_buttons()
 
     # Update the display
     pygame.display.flip()
@@ -147,18 +235,10 @@ def input_text(prompt, position):
     return current_text
 
 def get_name():
-    # Get Player 1's name
+    # Get Player names
     player1 = input_text("Enter Player 1's name: ", (200, 100))
-
-    # Get Player 2's name
     player2 = input_text("Enter Player 2's name: ", (200, 100))
-
     return player1, player2
-
-def valid_moves(board):
-    print("Valid Moves:")
-    for move in board.legal_moves:
-        print(move.uci())
 
 def history(player1_moves,player2_moves):
     max_moves = max(len(player1_moves), len(player2_moves))
@@ -241,7 +321,7 @@ def print_result(player1_moves, player2_moves, player1, player2):
         move2 = player2_moves[i].uci() if i < len(player2_moves) else "N/A"
         print(f"{player1} : {move1}, {player2} : {move2}")
 
-def input_move():
+def handle_events():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -251,6 +331,7 @@ def input_move():
             return move
 
 def play_game(player1, player2):
+    global player1_moves, player2_moves, board, players, current_player
     player1_moves = []  # Store Player 1's moves separately
     player2_moves = []  # Store Player 2's moves separately
     current_player = 0
@@ -259,38 +340,20 @@ def play_game(player1, player2):
 
     while not board.is_game_over():
         game(board)
-        move = input_move()
+        move = handle_events()
+
+        if move != None:
+            ic(move)
 
         if move == None:
             continue
         
         elif len(move) == 2:
-            move = input_move()
+            continue
 
-        elif move in ["history", "hist", "moves", "move", "m"]:
-            history(player1_moves,player2_moves)
-            continue # Allow the player to input a new move
-
-        elif move in ["hint", "hints", "h"]:
-            valid_moves(board)
-            continue # Allow the player to input a new move
-
-        elif move in ["undo", "u"]:
-            undo(players,player1_moves,player2_moves,board)
-            continue  # Allow the player to input a new move
-
-        elif move in ["draw", "d"]:
-            if is_draw(player1_moves, player2_moves, players, current_player):
-                break
-            continue # Allow the player to input a new move
-
-        elif move in ["exit", "stop"]:
-            break
-        
         else:
             try:
                 move = chess.Move.from_uci(move)
-                print(f"\033[92mMove confirmed: {move.uci()}.\033[0m")  # Added move confirmation prompt
                 if move in board.legal_moves:
                     if board.is_castling(move):  # Check for castling
                         board.push(move)  # Perform castling
@@ -331,11 +394,8 @@ def play_game(player1, player2):
                         break
                     elif board.is_check():
                         print(f"\033[91mCheck! {players[current_player]} is in check!\033[0m")
-                else:
-                    print("Invalid move! Try again.")
             except ValueError:
-                print("Invalid move format! Use UCI format (e.g., e2e4).")
-
+                ic()
 
     print("\033[93mGame over.\033[0m")
     print("\033[95mResult: " + board.result() + "\033[0m")  # Enhanced game over message
