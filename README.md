@@ -1,14 +1,16 @@
-This is an AI chess game i am trying to make. i make trying to make this with a small step at a time since i am a beginner
+This is an AI chess game I am trying to make. I am trying to make this with a small step at a time since i am a beginner
 
-Steps:
-	Learn about pygame,
-	Initialise board,
-	Initialise chess pieces,
-	Integrate the code with pygame:
-		show the board and moves,
-		allow the user to make moves using mouse,
+
+goals:
+	Add a box showing player name and who is playing
+	Add a box showing the selected move(temperorary)
+	Add timer
+	Add draw option inside pygame window
+	Add settings:
+		Allow user to change background colour
+		Allow user to change board colour
 	Add random ai #just move randomly,
-	add actual ai,
-	add a machine learning ai,
+	Add actual ai,
+	Add a machine learning ai,
 
 # ai_chess
