@@ -309,19 +309,19 @@ def handle_events():
 
 def perform_castling(board, move):
     board.push(move)  # Perform castling
-    if move.from_square == chess.E1 and move.to_square == chess.G1:  # Kingside castling for white
+    if move == "e1g1":  # Kingside castling for white
         board.push(chess.Move.from_uci("e1g1"))  # Move the King
         board.push(chess.Move.from_uci("h1f1"))  # Move the Rook
 
-    elif move.from_square == chess.E1 and move.to_square == chess.C1:  # Queenside castling for white
+    elif move == "e1c1":  # Queenside castling for white
         board.push(chess.Move.from_uci("e1c1"))  # Move the King
         board.push(chess.Move.from_uci("a1d1"))  # Move the Rook
 
-    elif move.from_square == chess.E8 and move.to_square == chess.G8:  # Kingside castling for black
+    elif move == "e8g8":  # Kingside castling for black
         board.push(chess.Move.from_uci("e8g8"))  # Move the King
         board.push(chess.Move.from_uci("h8f8"))  # Move the Rook
 
-    elif move.from_square == chess.E8 and move.to_square == chess.C8:  # Queenside castling for black
+    elif move == "e8c8":  # Queenside castling for black
         board.push(chess.Move.from_uci("e8c8"))  # Move the King
         board.push(chess.Move.from_uci("a8d8"))  # Move the Rook
 
