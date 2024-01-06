@@ -332,9 +332,10 @@ def store_moves(player1_moves, player2_moves, current_player, move):
         player2_moves.append(move)  # Store Player 2's move
 
     current_player = 1 - current_player  # Switch players
+    return current_player
 
 def play_game(player1, player2):
-    global player1_moves, player2_moves, board, players, current_player
+    global player1_moves, player2_moves, board, players
     player1_moves = []  # Store Player 1's moves separately
     player2_moves = []  # Store Player 2's moves separately
     current_player = 0
@@ -364,7 +365,7 @@ def play_game(player1, player2):
                     else:
                         board.push(move)  # For normal moves
 
-                    store_moves(player1_moves, player2_moves, current_player, move)
+                    current_player = store_moves(player1_moves, player2_moves, current_player, move)
 
                     if board.is_checkmate():
                         print(f"Checkmate! {players[current_player]} wins.")
