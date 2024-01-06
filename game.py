@@ -162,7 +162,7 @@ def update(board):
         chessboard[j] = PIECE_VALUE.get(i)
 
 def draw_buttons():
-    for i,button_name in enumerate(BUTTONS):
+    for button_name in (BUTTONS):
         button_position = BUTTON_POSITIONS[button_name]
 
         button = pygame.Rect(button_position, (BUTTON_WIDTH, BUTTON_HEIGHT))
@@ -242,9 +242,9 @@ def undo(players,player1_moves,player2_moves,board):
             last_move_player2 = None
                     
         if last_move_player1 is not None:
-            print(f"{players[0]} undid their last move: {last_move_player1.uci()}")
+            print(f"{players[0]} undid their last move: {last_move_player1}")
         if last_move_player2 is not None:
-            print(f"{players[1]} undid their last move: {last_move_player2.uci()}")
+            print(f"{players[1]} undid their last move: {last_move_player2}")
 
     else:
         print("No moves to undo.")
@@ -294,8 +294,8 @@ def print_result(player1_moves, player2_moves, player1, player2):
     max_moves = max(len(player1_moves), len(player2_moves))
     print("\nGame history:")
     for i in range(max_moves):
-        move1 = player1_moves[i].uci() if i < len(player1_moves) else "N/A"
-        move2 = player2_moves[i].uci() if i < len(player2_moves) else "N/A"
+        move1 = player1_moves[i] if i < len(player1_moves) else "N/A"
+        move2 = player2_moves[i] if i < len(player2_moves) else "N/A"
         print(f"{player1} : {move1}, {player2} : {move2}")
 
 def handle_events():
@@ -334,8 +334,72 @@ def store_moves(player1_moves, player2_moves, current_player, move):
     current_player = 1 - current_player  # Switch players
     return current_player
 
-def play_game(player1, player2):
-    global player1_moves, player2_moves, board, players
+# Draw buttons for pawn promotion
+def draw_promotion_buttons():
+    for piece_name in (["queen", "rook", "bishop", "knight"]):
+        button_position = BUTTON_POSITIONS[piece_name]
+
+        button = pygame.Rect(button_position, (PAWN_BUTTON_WIDTH, PAWN_BUTTON_HEIGHT))
+        pygame.draw.rect(screen, BUTTON_COLOR, button)
+
+        # Draw the piece image
+        piece_img = PIECE_IMAGE.get(piece_name + "_w")
+        screen.blit(piece_img, (button_position[0], button_position[1]))
+
+        pygame.display.flip()
+
+# Modify the handle_events function to handle pawn promotion
+def handle_promotion():
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            for i, piece_name in enumerate(["queen", "rook", "bishop", "knight"]):
+                button_position = BUTTON_POSITIONS[piece_name]
+                if button_position[0] <= mouse_x <= button_position[0] + BUTTON_WIDTH and \
+                        button_position[1] <= mouse_y <= button_position[1] + BUTTON_HEIGHT:
+                    return ["q", "r", "b", "n"][i]  # Return the selected piece
+    return None
+
+# Modify the pawn_promotion function
+def pawn_promotion(board, move):
+    global screen, font
+
+    # Display pawn promotion options
+    screen.fill(BACKGROUND)
+    options_text = font.render("Choose a piece for pawn promotion:", True, TEXT_COLOR)
+    screen.blit(options_text, (50, 50))
+
+    draw_promotion_buttons()  # Draw the piece images
+
+    # Wait for player input
+    selected_piece = None
+    while selected_piece is None:
+        selected_piece = handle_promotion()
+
+    # Perform the move with the selected piece
+    move = move + selected_piece
+    board.push(chess.Move.from_uci(move))
+
+    return move
+
+def play_game():
+    global screen, font, player1, player2, player1_moves, player2_moves, board, players
+
+    pygame.init() # Initialize Pygame
+
+    # Create the Pygame window
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("AI Chess")
+
+    # Pygame font setup
+    pygame.font.init()
+    font = pygame.font.SysFont(None, 28)
+
+    player1, player2 = get_name()
+
     player1_moves = []  # Store Player 1's moves separately
     player2_moves = []  # Store Player 2's moves separately
     current_player = 0
@@ -357,29 +421,37 @@ def play_game(player1, player2):
 
         else:
             try:
-                move = chess.Move.from_uci(move)
-                if move in board.legal_moves:
-                    if board.is_castling(move):  # Check for castling
-                        perform_castling(board, move)
+                move_c = chess.Move.from_uci(move)
+                if move_c in board.legal_moves:
+                    if board.is_castling(move_c):  # Check for castling
+                        perform_castling(board, move_c)
 
                     else:
-                        board.push(move)  # For normal moves
-
+                        board.push(move_c)  # For normal moves
+                    current_player = store_moves(player1_moves, player2_moves, current_player, move_c)
+                    
+                else:
+                    move_q = chess.Move.from_uci(move + "q")
+                    if move_q in board.legal_moves:
+                        move = pawn_promotion(board, move)
                     current_player = store_moves(player1_moves, player2_moves, current_player, move)
 
-                    if board.is_checkmate():
-                        print(f"Checkmate! {players[current_player]} wins.")
-                        break
-                    elif board.is_stalemate():
-                        print("Stalemate! The game is a draw.")
-                        break
-                    elif board.is_insufficient_material():
-                        print("Insufficient material! The game is a draw.")
-                        break
-                    elif board.is_check():
-                        print(f"\033[91mCheck! {players[current_player]} is in check!\033[0m")
+                if board.is_checkmate():
+                    print(f"\033[91mCheckmate!\033[0m {players[current_player]} wins.")
+                    break
+                elif board.is_stalemate():
+                    print("Stalemate! The game is a draw.")
+                    break
+                elif board.is_insufficient_material():
+                    print("Insufficient material! The game is a draw.")
+                    break
+                elif board.is_check():
+                    print(f"\033[91mCheck! {players[current_player]} is in check!\033[0m")
+
             except ValueError:
                 ic()
+
+    pygame.quit()
 
     print("\033[93mGame over.\033[0m")
     print("\033[95mResult: " + board.result() + "\033[0m")  # Enhanced game over message
@@ -389,22 +461,7 @@ def play_game(player1, player2):
 
     play_again = input("Do you want to play again? Reply with 'Y' for yes: ")
     if play_again.lower() in ["yes", "y"]:
-        change_names = input("Do you want to change your names? Reply with 'Y' for yes: ")
-        if change_names.lower() in ["yes", "y"]:
-            player1, player2 = get_name()
-        play_game(player1, player2)
+        play_game()
 
 if __name__ == "__main__":
-    # Initialize Pygame
-    pygame.init()
-
-    # Create the Pygame window
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption("AI Chess")
-
-    # Pygame font setup
-    pygame.font.init()
-    font = pygame.font.SysFont(None, 28)
-
-    player1, player2 = get_name()
-    play_game(player1, player2)
+    play_game()
