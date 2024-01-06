@@ -13,15 +13,10 @@ def highlight_square(value1, value2, colour):
     pygame.draw.rect(screen, colour, square_rect, width = 2 )
 
 def highlight_move(move):
-        # Find the location
-        value = SQUARES.index(move)
-
-        a = value/8
-        row = int(a)
-        column = (a - row)*8
-        highlight_square(column, row, GOLD)
-
-        pygame.display.flip()
+    value = SQUARES.index(move)
+    row, column = divmod(value, 8)
+    highlight_square(column, row, GOLD)
+    pygame.display.flip()
 
 def valid_moves(board):
     for move in board.legal_moves:
