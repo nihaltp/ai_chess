@@ -1,6 +1,7 @@
 import sys
 import time
 import chess
+import random
 import pygame
 from config import *
 from icecream import ic
@@ -362,8 +363,8 @@ def pawn_promotion(board, move):
 
     # Display pawn promotion options
     screen.fill(BACKGROUND)
-    options_text = font.render("Choose a piece for pawn promotion:", True, TEXT_COLOR)
-    screen.blit(options_text, (50, 50))
+    options_text = font.render("Choose a piece for pawn promotion:", True, BLACK)
+    screen.blit(options_text, (PAWN_BUTTON_X//2, PAWN_BUTTON_Y//2))
 
     draw_promotion_buttons()  # Draw the piece images
 
@@ -394,26 +395,27 @@ def play_game():
     player1, player2 = get_name()
 
     player1_moves = []  # Store Player 1's moves separately
-    player2_moves = []  # Store Player 2's moves separately
+    player2_moves = []  # Spore Player 2's moves separately
     current_player = 0
     players = [player1, player2]
     board = chess.Board()
 
     while not board.is_game_over():
         game(board)
-        move = handle_events()
 
-        if move != None:
-            ic(move)
-
-        if move == None:
-            continue
-        
-        elif len(move) == 2:
-            continue
+        if players[current_player].lower() in ["ai", "bot", "random"]:
+            moves = []
+            for value in board.legal_moves:
+                moves.append(value.uci())
+            move = random.choice(moves)
 
         else:
-            try:
+            move = handle_events()
+            if move is not None:
+                ic(move)
+
+        try:
+            if move is not None:
                 move_c = chess.Move.from_uci(move)
                 if move_c in board.legal_moves:
                     if board.is_castling(move_c):  # Check for castling
@@ -427,7 +429,7 @@ def play_game():
                     move_q = chess.Move.from_uci(move + "q")
                     if move_q in board.legal_moves:
                         move = pawn_promotion(board, move)
-                    current_player = store_moves(player1_moves, player2_moves, current_player, move)
+                        current_player = store_moves(player1_moves, player2_moves, current_player, move)
 
                 if board.is_checkmate():
                     print(f"\033[91mCheckmate!\033[0m {players[current_player]} wins.")
@@ -441,8 +443,8 @@ def play_game():
                 elif board.is_check():
                     print(f"\033[91mCheck! {players[current_player]} is in check!\033[0m")
 
-            except ValueError:
-                ic()
+        except ValueError:
+            ic()
 
     pygame.quit()
 
