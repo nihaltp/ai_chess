@@ -8,7 +8,7 @@ from icecream import ic
 def highlight_square(value1, value2, colour):
     x = CHESS_X + (value1 * SQUARE_SIZE)
     y = CHESS_Y + (value2 * SQUARE_SIZE)
- 
+
     square_rect = pygame.Rect(x, y, SQUARE_SIZE, SQUARE_SIZE)
     pygame.draw.rect(screen, colour, square_rect, width = 2 )
 
@@ -215,8 +215,8 @@ def get_name():
 def history(player1_moves,player2_moves):
     max_moves = max(len(player1_moves), len(player2_moves))
     for i in range(max_moves):
-        move1 = player1_moves[i].uci() if i < len(player1_moves) else "N/A"
-        move2 = player2_moves[i].uci() if i < len(player2_moves) else "N/A"
+        move1 = player1_moves[i] if i < len(player1_moves) else "N/A"
+        move2 = player2_moves[i] if i < len(player2_moves) else "N/A"
         print(f"{player1} : {move1}, {player2} : {move2}")
 
 def undo(players,player1_moves,player2_moves,board):
@@ -304,19 +304,19 @@ def handle_events():
 
 def perform_castling(board, move):
     board.push(move)  # Perform castling
-    if move == "e1g1":  # Kingside castling for white
+    if move == "e1g1":  # King-side castling for white
         board.push(chess.Move.from_uci("e1g1"))  # Move the King
         board.push(chess.Move.from_uci("h1f1"))  # Move the Rook
 
-    elif move == "e1c1":  # Queenside castling for white
+    elif move == "e1c1":  # Queen-side castling for white
         board.push(chess.Move.from_uci("e1c1"))  # Move the King
         board.push(chess.Move.from_uci("a1d1"))  # Move the Rook
 
-    elif move == "e8g8":  # Kingside castling for black
+    elif move == "e8g8":  # King-side castling for black
         board.push(chess.Move.from_uci("e8g8"))  # Move the King
         board.push(chess.Move.from_uci("h8f8"))  # Move the Rook
 
-    elif move == "e8c8":  # Queenside castling for black
+    elif move == "e8c8":  # Queen-side castling for black
         board.push(chess.Move.from_uci("e8c8"))  # Move the King
         board.push(chess.Move.from_uci("a8d8"))  # Move the Rook
 
@@ -338,12 +338,11 @@ def draw_promotion_buttons():
         pygame.draw.rect(screen, BUTTON_COLOR, button)
 
         # Draw the piece image
-        piece_img = PIECE_IMAGE.get(piece_name + "_w")
-        screen.blit(piece_img, (button_position[0], button_position[1]))
-
+        color = "_w" if current_player == 0 else "_b"
+        piece_img = PAWN_PROMOTION_IMAGE.get(piece_name + color)
+        screen.blit(piece_img, ((button_position[0] + (PAWN_BUTTON_WIDTH/2) - (piece_img.get_width()/2)), (button_position[1] + (PAWN_BUTTON_HEIGHT/2) - (piece_img.get_height()/2))))
         pygame.display.flip()
 
-# Modify the handle_events function to handle pawn promotion
 def handle_promotion():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -353,12 +352,11 @@ def handle_promotion():
             mouse_x, mouse_y = pygame.mouse.get_pos()
             for i, piece_name in enumerate(["queen", "rook", "bishop", "knight"]):
                 button_position = BUTTON_POSITIONS[piece_name]
-                if button_position[0] <= mouse_x <= button_position[0] + BUTTON_WIDTH and \
-                        button_position[1] <= mouse_y <= button_position[1] + BUTTON_HEIGHT:
+                if button_position[0] <= mouse_x <= button_position[0] + PAWN_BUTTON_WIDTH and \
+                        button_position[1] <= mouse_y <= button_position[1] + PAWN_BUTTON_HEIGHT:
                     return ["q", "r", "b", "n"][i]  # Return the selected piece
     return None
 
-# Modify the pawn_promotion function
 def pawn_promotion(board, move):
     global screen, font
 
@@ -381,7 +379,7 @@ def pawn_promotion(board, move):
     return move
 
 def play_game():
-    global screen, font, player1, player2, player1_moves, player2_moves, board, players
+    global screen, font, player1, player2, player1_moves, player2_moves, board, players, current_player
 
     pygame.init() # Initialize Pygame
 

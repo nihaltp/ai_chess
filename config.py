@@ -27,13 +27,17 @@ BUTTON_UNDO = (BUTTON_X, BUTTON_Y+150)
 BUTTON_DRAW = (BUTTON_X, BUTTON_Y+200)
 BUTTON_STOP = (BUTTON_X, BUTTON_Y+250)
 
-PAWN_BUTTON_WIDTH = 50
-PAWN_BUTTON_HEIGHT = 50
+PAWN_BUTTON_WIDTH = 100
+PAWN_BUTTON_HEIGHT = 100
+PAWN_BUTTON_X = 100
+PAWN_BUTTON_Y = 100
 
-BUTTON_QUEEN = (100, 100)
-BUTTON_ROOK = (200, 100)
-BUTTON_KNIGHT = (300, 100)
-BUTTON_BISHOP = (400, 100)
+PAWN_IMAGE_MARGIN = 10
+
+BUTTON_QUEEN = (PAWN_BUTTON_X, PAWN_BUTTON_Y)
+BUTTON_ROOK = (PAWN_BUTTON_X + PAWN_BUTTON_WIDTH*2 , PAWN_BUTTON_Y)
+BUTTON_KNIGHT = (PAWN_BUTTON_X, PAWN_BUTTON_Y + PAWN_BUTTON_HEIGHT*2)
+BUTTON_BISHOP = (PAWN_BUTTON_X + PAWN_BUTTON_WIDTH*2, PAWN_BUTTON_Y + PAWN_BUTTON_HEIGHT*2)
 
 BUTTONS = [
     "History",
@@ -96,12 +100,36 @@ PIECE_IMAGE = {
     "bishop_w": bishop_w,
     "queen_w": queen_w,
     "king_w": king_w,
+
     "pawn_b": pawn_b,
     "rook_b": rook_b,
     "knight_b": knight_b,
     "bishop_b": bishop_b,
     "queen_b": queen_b,
     "king_b": king_b,
+}
+
+#convert images for pawn promotion
+rook_w_pp = pygame.transform.scale(rook_w, (PAWN_BUTTON_WIDTH - PAWN_IMAGE_MARGIN, PAWN_BUTTON_HEIGHT - PAWN_IMAGE_MARGIN))
+knight_w_pp = pygame.transform.scale(knight_w, (PAWN_BUTTON_WIDTH - PAWN_IMAGE_MARGIN, PAWN_BUTTON_HEIGHT - PAWN_IMAGE_MARGIN))
+bishop_w_pp = pygame.transform.scale(bishop_w, (PAWN_BUTTON_WIDTH - PAWN_IMAGE_MARGIN, PAWN_BUTTON_HEIGHT - PAWN_IMAGE_MARGIN))
+queen_w_pp = pygame.transform.scale(queen_w, (PAWN_BUTTON_WIDTH - PAWN_IMAGE_MARGIN, PAWN_BUTTON_HEIGHT - PAWN_IMAGE_MARGIN))
+
+rook_b_pp = pygame.transform.scale(rook_b, (PAWN_BUTTON_WIDTH - PAWN_IMAGE_MARGIN, PAWN_BUTTON_HEIGHT - PAWN_IMAGE_MARGIN))
+knight_b_pp = pygame.transform.scale(knight_b, (PAWN_BUTTON_WIDTH - PAWN_IMAGE_MARGIN, PAWN_BUTTON_HEIGHT - PAWN_IMAGE_MARGIN))
+bishop_b_pp = pygame.transform.scale(bishop_b, (PAWN_BUTTON_WIDTH - PAWN_IMAGE_MARGIN, PAWN_BUTTON_HEIGHT - PAWN_IMAGE_MARGIN))
+queen_b_pp = pygame.transform.scale(queen_b, (PAWN_BUTTON_WIDTH - PAWN_IMAGE_MARGIN, PAWN_BUTTON_HEIGHT - PAWN_IMAGE_MARGIN))
+
+PAWN_PROMOTION_IMAGE = {
+    "rook_w": rook_w_pp,
+    "knight_w": knight_w_pp,
+    "bishop_w": bishop_w_pp,
+    "queen_w": queen_w_pp,
+
+    "rook_b": rook_b_pp,
+    "knight_b": knight_b_pp,
+    "bishop_b": bishop_b_pp,
+    "queen_b": queen_b_pp,
 }
 
 PIECE_VALUE = {
