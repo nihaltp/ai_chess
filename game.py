@@ -13,10 +13,10 @@ def highlight_square(value1, value2, colour):
     square_rect = pygame.Rect(x, y, SQUARE_SIZE, SQUARE_SIZE)
     pygame.draw.rect(screen, colour, square_rect, width = 2 )
 
-def highlight_move(move):
+def highlight_move(move,colour):
     value = SQUARES.index(move)
     row, column = divmod(value, 8)
-    highlight_square(column, row, GOLD)
+    highlight_square(column, row, colour)
     pygame.display.flip()
 
 def valid_moves(board):
@@ -26,9 +26,9 @@ def valid_moves(board):
 
         move = move.uci()
         move_1 = move[:2] 
-        highlight_move(move_1)
+        highlight_move(move_1, RED)
         move_2 = move[2:]
-        highlight_move(move_2)
+        highlight_move(move_2, GOLD)
 
         # wait a second
         time.sleep(1)
@@ -65,7 +65,7 @@ def draw_piece(piece, square_rect):
 
 # Draw chessboard
 def draw_chessboard(ROWS, COLUMNS):
-    global highlight, mouse_x, mouse_y
+    global highlight, mouse_x, mouse_y, previous_move
 
     screen.fill(BACKGROUND)
     square_rect = pygame.Rect(CHESS_X - 2, CHESS_Y - 2, SQUARE_WIDTH + 4, SQUARE_WIDTH + 4)
@@ -78,13 +78,22 @@ def draw_chessboard(ROWS, COLUMNS):
 
     draw_rows()
     draw_columns()
+    draw_buttons()
 
     if highlight:
         # Determine the clicked square
         clicked_column = (mouse_x - CHESS_X) // SQUARE_SIZE
         clicked_row = (mouse_y - CHESS_Y) // SQUARE_SIZE
 
-        highlight_square(clicked_column, clicked_row, GOLD)
+        if len(move) == 2:
+            highlight_square(clicked_column, clicked_row, RED)
+        else:
+            highlight_square(clicked_column, clicked_row, GOLD)
+
+    if previous_move != "":
+        value = previous_move.uci()
+        move_2 = value[2:]
+        highlight_move(move_2, BLUE_1)
 
 def draw_square(row, column):
     color = WHITE if (row + column) % 2 == 0 else GREY
@@ -173,7 +182,6 @@ def draw_buttons():
 def game(board):
     update(board)
     draw_chessboard(ROWS, COLUMNS)
-    draw_buttons()
 
     # Update the display
     pygame.display.flip()
@@ -380,7 +388,7 @@ def pawn_promotion(board, move):
     return move
 
 def play_game():
-    global screen, font, player1, player2, player1_moves, player2_moves, board, players, current_player
+    global screen, font, player1, player2, player1_moves, player2_moves, board, players, current_player, previous_move
 
     pygame.init() # Initialize Pygame
 
@@ -423,12 +431,14 @@ def play_game():
 
                     else:
                         board.push(move_c)  # For normal moves
+                    previous_move = move_c
                     current_player = store_moves(player1_moves, player2_moves, current_player, move_c)
                     
                 else:
                     move_q = chess.Move.from_uci(move + "q")
                     if move_q in board.legal_moves:
                         move = pawn_promotion(board, move)
+                        previous_move = move_q
                         current_player = store_moves(player1_moves, player2_moves, current_player, move)
 
                 if board.is_checkmate():
@@ -442,17 +452,19 @@ def play_game():
                     break
                 elif board.is_check():
                     print(f"\033[91mCheck! {players[current_player]} is in check!\033[0m")
+                    if current_player == 0:
+                        highlight_square()
 
         except ValueError:
             ic()
 
     pygame.quit()
 
-    print("\033[93mGame over.\033[0m")
-    print("\033[95mResult: " + board.result() + "\033[0m")  # Enhanced game over message
-
     print_result(player1_moves, player2_moves, player1, player2)
     save_to_file(player1_moves, player2_moves, player1, player2)
+
+    print("\033[93mGame over.\033[0m")
+    print("\033[95mResult: " + board.result() + "\033[0m")  # Enhanced game over message
 
     play_again = input("Do you want to play again? Reply with 'Y' for yes: ")
     if play_again.lower() in ["yes", "y"]:
