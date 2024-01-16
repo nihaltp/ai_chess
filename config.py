@@ -76,6 +76,7 @@ BUTTON_COLOR = BLUE_1
 
 # Variables
 move = ""
+previous_move = ""
 selected_piece = None
 highlight = False
 
