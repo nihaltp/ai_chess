@@ -452,8 +452,10 @@ def play_game():
                     break
                 elif board.is_check():
                     print(f"\033[91mCheck! {players[current_player]} is in check!\033[0m")
-                    if current_player == 0:
-                        highlight_square()
+                    for i in chessboard:
+                        if chessboard[i] == "king_w" and current_player == 0 or chessboard[i] == "king_b" and current_player == 1:
+                            pos = chessboard[i]
+                            highlight_square(pos, RED)
 
         except ValueError:
             ic()
