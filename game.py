@@ -222,16 +222,20 @@ def get_name():
     return player1, player2
 
 def history(player1_moves,player2_moves):
-    board.clear_board()
-    game()
+    board_history = chess.Board()
+    game(board_history)
+    ic(player1_moves)
+    ic(player2_moves)
     max_moves = max(len(player1_moves), len(player2_moves))
     for i in range(max_moves):
         if i < len(player1_moves):
-            board.push_uci(player1_moves[i])
-            game()
+            board_history.push(player1_moves[i])
+            game(board_history)
+            time.sleep(0.5)
         if i < len(player2_moves):
-            board.push_uci(player2_moves[i])
-            game()
+            board_history.push(player2_moves[i])
+            game(board_history)
+            time.sleep(0.5)
 
 def undo(players,player1_moves,player2_moves,board):
     if len(player1_moves) >= 1 or len(player2_moves) >= 1:
