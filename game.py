@@ -97,6 +97,12 @@ def draw_chessboard(ROWS, COLUMNS):
         move_2 = value[2:]
         highlight_move(move_2, BLUE_1)
 
+    if check:
+        for i in chessboard:
+            if chessboard[i] == "king_w" and current_player == 0 or chessboard[i] == "king_b" and current_player == 1:
+                highlight_move(i, RED)
+                break
+
 def draw_square(row, column):
     color = WHITE if (row + column) % 2 == 0 else GREY
     square_rect = pygame.Rect(CHESS_X + column * SQUARE_SIZE, CHESS_Y + row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE)
@@ -399,7 +405,7 @@ def pawn_promotion(board, move):
     return move
 
 def play_game():
-    global screen, font, player1, player2, player1_moves, player2_moves, board, players, current_player, previous_move
+    global screen, font, player1, player2, player1_moves, player2_moves, board, players, current_player, previous_move, check
 
     pygame.init() # Initialize Pygame
 
@@ -462,11 +468,9 @@ def play_game():
                     print("Insufficient material! The game is a draw.")
                     break
                 elif board.is_check():
-                    print(f"\033[91mCheck! {players[current_player]} is in check!\033[0m")
-                    for i in chessboard:
-                        if chessboard[i] == "king_w" and current_player == 0 or chessboard[i] == "king_b" and current_player == 1:
-                            pos = chessboard[i]
-                            highlight_square(pos, RED)
+                    check = True
+                elif not board.is_check():
+                    check = False
 
         except ValueError:
             ic()

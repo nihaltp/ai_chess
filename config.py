@@ -79,6 +79,7 @@ move = ""
 previous_move = ""
 selected_piece = None
 highlight = False
+check = False
 
 #import images
 pawn_w = pygame.image.load("pieces/pawn_w.png")
