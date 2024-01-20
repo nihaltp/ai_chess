@@ -14,6 +14,8 @@ def highlight_square(value1, value2, colour):
     pygame.draw.rect(screen, colour, square_rect, width = 2 )
 
 def highlight_move(move,colour):
+    if len(move) != 2:
+        move = move[:2]
     value = SQUARES.index(move)
     row, column = divmod(value, 8)
     highlight_square(column, row, colour)
