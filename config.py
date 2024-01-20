@@ -80,6 +80,7 @@ previous_move = ""
 selected_piece = None
 highlight = False
 check = False
+TRANSPOSITION_TABLE_FILE = "transposition_table.pkl"
 
 #import images
 pawn_w = pygame.image.load("pieces/pawn_w.png")
@@ -148,6 +149,22 @@ PIECE_VALUE = {
     "b": "bishop_b",
     "q": "queen_b",
     "k": "king_b",
+}
+
+VALUE = {
+    "pawn_w": 1,
+    "knight_w": 3,
+    "bishop_w": 3,
+    "rook_w": 5,
+    "queen_w": 9,
+    "king_w": 10,
+
+    "pawn_b": -1,
+    "knight_b": -3,
+    "bishop_b": -3,
+    "rook_b": -5,
+    "queen_b": -9,
+    "king_b": -10
 }
 
 FILE_NAMES = ["a", "b", "c", "d", "e", "f", "g", "h"]

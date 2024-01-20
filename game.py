@@ -4,6 +4,7 @@ import chess
 import random
 import pygame
 from config import *
+from engine import *
 from icecream import ic
 
 def highlight_square(value1, value2, colour):
@@ -237,13 +238,13 @@ def history(player1_moves,player2_moves):
     max_moves = max(len(player1_moves), len(player2_moves))
     for i in range(max_moves):
         if i < len(player1_moves):
+            time.sleep(0.5)
             board_history.push(player1_moves[i])
             game(board_history)
-            time.sleep(0.5)
         if i < len(player2_moves):
+            time.sleep(0.5)
             board_history.push(player2_moves[i])
             game(board_history)
-            time.sleep(0.5)
 
 def undo(players,player1_moves,player2_moves,board):
     if len(player1_moves) >= 1 or len(player2_moves) >= 1:
@@ -428,11 +429,17 @@ def play_game():
     while not board.is_game_over():
         game(board)
 
-        if players[current_player].lower() in ["ai", "bot", "random"]:
+        if players[current_player].lower() == "random":
             moves = []
             for value in board.legal_moves:
                 moves.append(value.uci())
             move = random.choice(moves)
+            time.sleep(0.5)
+
+        if players[current_player].lower() in ["ai", "bot", "minimax"]:
+            # TODO: Allow user to choose depth
+            depth = 2
+            move = best_move(board, depth)
 
         else:
             move = handle_events()
