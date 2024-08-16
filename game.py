@@ -1,10 +1,11 @@
+import os
 import sys
 import time
 import chess
+import chess.engine
 import random
 import pygame
 from config import *
-from engine import *
 from icecream import ic
 
 def highlight_square(value1, value2, colour):
@@ -125,9 +126,11 @@ def button_action(button_name):
     elif button_name == "Undo":
         undo(players,player1_moves,player2_moves,board)
     elif button_name == "Draw":
-        # if is_draw(player1_moves, player2_moves, players, current_player):
-        #     ic()
-        ic()
+        if is_draw(player1_moves, player2_moves, players, current_player):
+            print_result(player1_moves, player2_moves, player1, player2)
+            save_to_file(player1_moves, player2_moves, player1, player2)
+            pygame.quit()
+            sys.exit()
     elif button_name == "Stop":
         pygame.quit()
         sys.exit()
@@ -136,7 +139,6 @@ def handle_buttons(mouse_x, mouse_y):
     for button_name, pos in BUTTON_POSITIONS.items():
         if pos[0] <= mouse_x <= pos[0] + BUTTON_WIDTH and pos[1] <= mouse_y <= pos[1] + BUTTON_HEIGHT:
             button_action(button_name)
-            ic()
 
 #handle mouse clicks
 def handle_mouse_click():
@@ -271,45 +273,74 @@ def undo(players,player1_moves,player2_moves,board):
     else:
         print("No moves to undo.")
 
-def accept_draw():
-    draw_accept = input("Do you accept the draw offer? (yes/no): ")
-    if draw_accept.lower() in ["yes", "y"]:
-        return True
+def handle_draw(x1, x2, y, width1, width2, height):
+    rect_x = pygame.Rect(x1, y, width1, height)
+    rect_y = pygame.Rect(x2, y, width2, height)
+    pygame.draw.rect(screen, BLACK, rect_x, width = 2 )
+    pygame.draw.rect(screen, WHITE, rect_y, width = 2 )
+    pygame.display.flip()
 
-def offer_draw():
-    draw_offer = input("Do you want to offer a draw? (yes/no): ")
-    if draw_offer.lower() in ["yes", "y"]:
-        return True
+    for event in pygame.event.get():
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            if mouse_x > x1 and mouse_x < x1+width1 and mouse_y > y and mouse_y < y+height:
+                return True
+            if mouse_x > x2 and mouse_x < x2+width2 and mouse_y > y and mouse_y < y+height:
+                return False
+
+def draw(name_text, draw_text):
+    screen.fill(BACKGROUND)
+    name = font.render(name_text, True, BLACK)
+    draw_accept = font.render(draw_text, True, BLACK)
+    yes = font.render("Yes", True, BLACK)
+    no = font.render("No", True, BLACK)
+
+    # TODO: Add variable for dimensions below
+    screen.blit(name, (BUTTON_WIDTH, PAWN_BUTTON_HEIGHT//2))
+    screen.blit(draw_accept, (BUTTON_WIDTH, PAWN_BUTTON_HEIGHT))
+    screen.blit(yes, (BUTTON_WIDTH, PAWN_BUTTON_HEIGHT+60))
+    screen.blit(no, ((BUTTON_WIDTH*2)+10, PAWN_BUTTON_HEIGHT+60))
+    pygame.display.flip()
+
+    selected_option = None
+    while selected_option is None:
+        selected_option = handle_draw(BUTTON_WIDTH-5, BUTTON_WIDTH*2+5, PAWN_BUTTON_HEIGHT+55, 45, 40, 30)
+    return selected_option
 
 def is_draw(player1_moves, player2_moves, players, current_player):
     if len(player1_moves) < 2 and len(player2_moves) < 2:
         print("Draw offer rejected. Both players need to have made at least two moves.")
         return
 
-    print("\nDraw conditions are satisfied.")
-
-    if not offer_draw():
-        print(f"{players[current_player]} declined the draw offer.\n")
-        return
+    name_text = players[current_player]
+    if not draw(name_text, draw_offer_text):
+        return False
     
-    if accept_draw():
-        print("The game is a draw by agreement.")
-        return True
-    else:
-        player = 1 - current_player  # Switch player
-        print(f"{players[player]} declined the draw offer.\n")
+    name_text = players[1-current_player]
+    if not draw(name_text, draw_accept_text):
+        return False
+    
+    return True
+
 
 # Function to save moves to a text file
 def save_to_file(player1_moves, player2_moves, player1, player2):
+    # Ensure the directory directory exists
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
     p1s = str(player1)
     p2s = str(player2)
     p1r = p1s.replace(" ", "_")
     p2r = p2s.replace(" ", "_")
-    file = (p1r+"_"+p2r+".txt")
+
+    # Construct the full file path
+    file = os.path.join(directory, f"{p1r}_{p2r}.txt")
+
     with open(file, 'a') as file:
         file.write(f"Game between {player1} and {player2}:\n")
         for move1, move2 in zip(player1_moves, player2_moves):
-            file.write(f"{player1}: {move1.uci()}, {player2}: {move2.uci()}\n")
+            file.write(f"{player1}: {move1}, {player2}: {move2}\n")
 
 # Function to print game result
 def print_result(player1_moves, player2_moves, player1, player2):
@@ -406,7 +437,7 @@ def pawn_promotion(board, move):
     return move
 
 def play_game():
-    global screen, font, player1, player2, player1_moves, player2_moves, board, players, current_player, previous_move, check
+    global screen, font, player1, player2, player1_moves, player2_moves, board, players, current_player, previous_move, check, time_stockfish
 
     pygame.init() # Initialize Pygame
 
@@ -436,10 +467,28 @@ def play_game():
             move = random.choice(moves)
             time.sleep(0.5)
 
-        if players[current_player].lower() in ["ai", "bot", "minimax"]:
-            # TODO: Allow user to choose depth
-            depth = 2
-            move = best_move(board, depth)
+        elif players[current_player].lower() in ["ai", "bot", "stockfish"]:
+            attempt = 0
+            while attempt < time_limit:
+                attempt+=1
+                try:
+                    with chess.engine.SimpleEngine.popen_uci(stockfish_path) as engine:
+                        engine.configure({"Skill Level": skill_level, "Depth": depth})
+                        play_result = engine.play(board, chess.engine.Limit(time=time_stockfish))
+
+                        # Extracting values
+                        move = play_result.move.uci()
+                        # ponder = play_result.ponder.uci()
+                        # info = play_result.info
+                        # draw_offered = play_result.draw_offered
+                        # resigned = play_result.resigned
+                        ic(move)
+                        break
+
+                except TimeoutError:
+                    ic()
+                    time_stockfish += 1
+            time.sleep(0.5)
 
         else:
             move = handle_events()

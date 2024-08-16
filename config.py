@@ -1,5 +1,15 @@
 import pygame
 
+# Move history folder
+directory = "game_records"
+
+# Stockfish
+stockfish_path = r"stockfish\stockfish-windows-x86-64-sse41-popcnt.exe"  # Path to the Stockfish executable
+skill_level = 10  # Adjust the skill level here (0-20)
+depth = 15  # Adjust the depth limit here (lower depth = easier, higher = harder)
+time_stockfish = 2.0  # Time in seconds for stockfish
+time_limit = 2.0 # Time that can be added to stockfish
+
 # Constants
 SCREEN_WIDTH = 700.0
 SCREEN_HEIGHT = 700.0
@@ -74,13 +84,16 @@ BACKGROUND = BLUE
 BOARD_BORDER = BLACK 
 BUTTON_COLOR = BLUE_1
 
+# Draw text
+draw_offer_text = "Do you want to offer a draw?"
+draw_accept_text = "Do you want to accept the draw?"
+
 # Variables
 move = ""
 previous_move = ""
 selected_piece = None
 highlight = False
 check = False
-TRANSPOSITION_TABLE_FILE = "transposition_table.pkl"
 
 #import images
 pawn_w = pygame.image.load("pieces/pawn_w.png")
