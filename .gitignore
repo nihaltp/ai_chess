@@ -1,5 +1,4 @@
 *.pyc
-*.txt
-*.pkl
-
 settings.json
+/game_records
+/stockfish
