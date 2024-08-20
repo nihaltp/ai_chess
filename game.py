@@ -5,7 +5,11 @@ import chess
 import chess.engine
 import random
 import pygame
-from config import *
+
+from constants import *
+from variables import *
+from chess_assets import *
+
 from icecream import ic
 
 def highlight_square(value1, value2, colour):
