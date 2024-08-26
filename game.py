@@ -14,6 +14,8 @@ from constants import *
 from variables import *
 from chess_assets import *
 
+from icecream import ic
+
 class ChessGame:
     def __init__(self):
         try:
@@ -57,76 +59,91 @@ class ChessGame:
     def play_game(self):
         while not self.board.is_game_over():
             self.game(self.board)
+            self.handle_move()
+            if not self.process_move():
+                break
+        self.end_game()
 
-            if self.players[self.current_player].lower() == "random":
-                moves = [value.uci() for value in self.board.legal_moves]
-                self.move = random.choice(moves)
-                pygame.time.delay(500)
+    def handle_move(self):
+        if self.players[self.current_player].lower() == "random":
+            self.get_random_move()
+            pygame.time.delay(500)
+        elif self.players[self.current_player].lower() in ["ai", "bot", "stockfish"]:
+            self.get_ai_move()
+            pygame.time.delay(500)
+        else:
+            self.handle_events()
 
-            elif self.players[self.current_player].lower() in ["ai", "bot", "stockfish"]:
-                attempt = 0
-                while attempt < self.time_limit:
-                    attempt += 1
-                    try:
-                        self.engine.configure({"Skill Level": self.skill_level, "Depth": self.depth})
-                        play_result = self.engine.play(self.board, chess.engine.Limit(time=self.time_stockfish))
-                        # Extracting values
-                        self.move = play_result.move.uci()
-                        """
-                        TODO: show ponder as part of the hint
-                        TODO: use stockfish for hint
-                        ponder = play_result.ponder.uci()
-                        info = play_result.info
-                        TODO: Add option for stockfish to draw
-                        draw_offered = play_result.draw_offered
-                        TODO: Add option for stockfish to resign
-                        resigned = play_result.resigned
-                        """
-                        break
-                    except chess.engine.EngineError as e:
-                        print(f"Error initializing Stockfish engine: {e}")
-                        pygame.quit()
-                        sys.exit(1)
-                    except TimeoutError:
-                        self.time_stockfish += 1
-                    finally:
-                        self.engine.quit()
-                pygame.time.delay(500)
-            
-            else:
-                self.handle_events()
+    def get_random_move(self):
+        moves = [move.uci() for move in self.board.legal_moves]
+        self.move = random.choice(moves)
 
-            if self.move and len(self.move)>=4:
-                try:
-                    move_c = chess.Move.from_uci(self.move)
-                    if move_c in self.board.legal_moves:
-                        if self.board.is_castling(move_c):
-                            self.perform_castling()
-                        else:
-                            self.board.push(move_c)
-                        self.previous_move = move_c
-                        self.store_moves()
+    def get_ai_move(self):
+        attempt = 0
+        while attempt < self.time_limit:
+            attempt += 1
+            try:
+                self.engine.configure({"Skill Level": self.skill_level, "Depth": self.depth})
+                play_result = self.engine.play(self.board, chess.engine.Limit(time=self.time_stockfish))
+                # Extracting values
+                self.move = play_result.move.uci()
+                """
+                TODO: show ponder as part of the hint
+                TODO: use stockfish for hint
+                ponder = play_result.ponder.uci()
+                info = play_result.info
+                TODO: Add option for stockfish to draw
+                draw_offered = play_result.draw_offered
+                TODO: Add option for stockfish to resign
+                resigned = play_result.resigned
+                """
+                break
+            except chess.engine.EngineError as e:
+                print(f"Error initializing Stockfish engine: {e}")
+                pygame.quit()
+                sys.exit(1)
+            except TimeoutError:
+                self.time_stockfish += 1
+            finally:
+                self.engine.quit()
+
+    def process_move(self):
+        if self.move and len(self.move)>=4: # TODO: remove the second condition in the if
+            try:
+                move_c = chess.Move.from_uci(self.move)
+                if move_c in self.board.legal_moves:
+                    if self.board.is_castling(move_c):
+                        self.perform_castling()
                     else:
-                        move_q = chess.Move.from_uci(self.move + "q")
-                        if move_q in self.board.legal_moves:
-                            self.pawn_promotion()
-                            self.previous_move = move_q
-                            self.store_moves()
+                        self.board.push(move_c)
+                    self.previous_move = move_c
+                else:
+                    move_q = chess.Move.from_uci(self.move + "q")
+                    if move_q in self.board.legal_moves:
+                        self.pawn_promotion()
+                        self.previous_move = move_q
+                
+                self.store_moves()
+                self.check = self.board.is_check()
+                if not self.check_game_status():
+                    return False
+                return True
+            except ValueError as e:
+                print(f"Invalid move: {e}")
 
-                    self.check = self.board.is_check()
+    def check_game_status(self):
+        if self.board.is_checkmate():
+            print(f"\033[91mCheckmate!\033[0m {self.players[self.current_player]} wins.")
+            return False
+        if self.board.is_stalemate():
+            print("Stalemate! The game is a draw.")
+            return False
+        if self.board.is_insufficient_material():
+            print("Insufficient material! The game is a draw.")
+            return False
+        return True
 
-                    if self.board.is_checkmate():
-                        print(f"\033[91mCheckmate!\033[0m {self.players[self.current_player]} wins.")
-                        break
-                    elif self.board.is_stalemate():
-                        print("Stalemate! The game is a draw.")
-                        break
-                    elif self.board.is_insufficient_material():
-                        print("Insufficient material! The game is a draw.")
-                        break
-                except ValueError as e:
-                    print(f"Invalid move: {e}")
-
+    def end_game(self):
         self.history()
         self.save_to_file()
         print("\033[93mGame over.\033[0m")
