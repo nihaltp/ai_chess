@@ -92,11 +92,19 @@ class ChessGame:
                 TODO: use stockfish for hint
                 ponder = play_result.ponder.uci()
                 info = play_result.info
-                TODO: Add option for stockfish to draw
-                draw_offered = play_result.draw_offered
-                TODO: Add option for stockfish to resign
-                resigned = play_result.resigned
                 """
+                if play_result.draw_offered:
+                    name_text = self.players[1-self.current_player]
+                    if self.draw(name_text, draw_accept_text):
+                        self.history()
+                        self.save_to_file()
+                        pygame.quit()
+                        sys.exit(0)
+                if play_result.resigned:
+                    self.history()
+                    self.save_to_file()
+                    pygame.quit()
+                    sys.exit(0)
                 break
             except chess.engine.EngineError as e:
                 print(f"Error initializing Stockfish engine: {e}")
@@ -108,7 +116,9 @@ class ChessGame:
                 self.engine.quit()
 
     def process_move(self):
-        if self.move and len(self.move)>=4: # TODO: remove the second condition in the if
+        if not len(self.move) == 4:
+            return True
+        if self.move:
             try:
                 move_c = chess.Move.from_uci(self.move)
                 if move_c in self.board.legal_moves:
