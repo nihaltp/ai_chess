@@ -506,14 +506,17 @@ class ChessGame:
         return selected_option
 
     def handle_draw(self, x1, x2, y, width1, width2, height):
-        # TODO: Add what happens if options are not chosen
-        for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                if mouse_x > x1 and mouse_x < x1+width1 and mouse_y > y and mouse_y < y+height:
-                    return True
-                if mouse_x > x2 and mouse_x < x2+width2 and mouse_y > y and mouse_y < y+height:
-                    return False
+        start_time = time.time()
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_x, mouse_y = pygame.mouse.get_pos()
+                    if mouse_x > x1 and mouse_x < x1+width1 and mouse_y > y and mouse_y < y+height:
+                        return True
+                    if mouse_x > x2 and mouse_x < x2+width2 and mouse_y > y and mouse_y < y+height:
+                        return False
+            if time.time() - start_time > 60:
+                return False
 
     def save_to_file(self):
         # Ensure the directory exists
