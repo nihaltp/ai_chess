@@ -127,9 +127,9 @@ class ChessGame:
                 self.check = self.board.is_check()
                 if not self.check_game_status():
                     return False
-                return True
             except ValueError as e:
                 print(f"Invalid move: {e}")
+        return True
 
     def check_game_status(self):
         if self.board.is_checkmate():
@@ -361,28 +361,29 @@ class ChessGame:
         # Determine the clicked square
         clicked_column = (self.mouse_x - CHESS_X) // SQUARE_SIZE
         clicked_row = (self.mouse_y - CHESS_Y) // SQUARE_SIZE
+        self.handle_square_click(clicked_column, clicked_row)
 
+    def handle_square_click(self, column, row):
         # Check if the click is within the chessboard boundaries
-        if 0 <= clicked_row < ROWS and 0 <= clicked_column < COLUMNS:
-            value = int(clicked_row*8 + clicked_column)
+        if 0 <= row < ROWS and 0 <= column < COLUMNS:
+            value = int(row*8 + column)
             clicked_square = SQUARES[value]
-
-            if self.move is None:
-                self.move = clicked_square
-            elif len(self.move) == 2:
-                self.move += clicked_square
-            else:
-                self.move = clicked_square
-
+            self.handle_valid_click(clicked_square)
             if self.move[:2] == self.move[2:]:
                 self.move = self.move[:2]
-
             self.highlight = True
-
         else:
             self.handle_buttons()
             self.highlight = False
             self.move = ""
+
+    def handle_valid_click(self, square):
+        if self.move is None:
+            self.move = square
+        elif len(self.move) == 2:
+            self.move += square
+        else:
+            self.move = square
 
     def handle_buttons(self):
         for button_name, pos in BUTTON_POSITIONS.items():
@@ -392,17 +393,17 @@ class ChessGame:
     def button_action(self, button_name):
         if button_name == "History":
             self.history()
-        elif button_name == "Hint":
+        if button_name == "Hint":
             self.valid_moves()
-        elif button_name == "Undo":
+        if button_name == "Undo":
             self.undo()
-        elif button_name == "Draw":
+        if button_name == "Draw":
             if self.is_draw():
                 self.history()
                 self.save_to_file()
                 pygame.quit()
                 sys.exit(0)
-        elif button_name == "Stop":
+        if button_name == "Stop":
             pygame.quit()
             sys.exit()
 
@@ -423,16 +424,17 @@ class ChessGame:
         for i in range(max_moves):
             if i < len(self.player1_moves):
                 move = self.player1_moves[i]
-                move = chess.Move.from_uci(move)
-                board_history.push(move)
-                self.game(board_history)
-                pygame.time.delay(500)  # pause for 0.5 second
+                self.replay_game(move, board_history)
             if i < len(self.player2_moves):
                 move = self.player2_moves[i]
-                move = chess.Move.from_uci(move)
-                board_history.push(move)
-                self.game(board_history)
-                pygame.time.delay(500)  # pause for 0.5 second
+                self.replay_game(move, board_history)
+
+    def replay_game(self, move, board):
+        move = chess.Move.from_uci(move)
+        if board.is_legal(move):
+            board.push(move)
+            self.game(board)
+            pygame.time.delay(500)  # pause for 0.5 second
 
     def valid_moves(self):
         for move in self.board.legal_moves:
@@ -445,7 +447,7 @@ class ChessGame:
             pygame.time.delay(500) # wait
 
     def undo(self):
-        if len(self.player1_moves) >= 1 or len(self.player2_moves) >= 1:
+        if len(self.player1_moves) >= 1 and len(self.player2_moves) >= 1:
             if len(self.player1_moves) >= 1:
                 self.board.pop()  # Undo last move on the board
                 last_move_player1 = self.player1_moves.pop()  # Remove Player 1's last move
@@ -601,7 +603,7 @@ class ChessGame:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 for i, piece_name in enumerate(["queen", "rook", "bishop", "knight"]):
                     button_position = BUTTON_POSITIONS[piece_name]
